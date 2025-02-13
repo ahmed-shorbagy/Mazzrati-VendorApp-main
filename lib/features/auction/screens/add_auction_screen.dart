@@ -15,7 +15,6 @@ import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.da
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
 import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
 

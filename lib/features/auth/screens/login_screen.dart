@@ -1,28 +1,18 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
+import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
+import 'package:mazzraati_vendor_app/features/auth/screens/forget_password_screen.dart';
 import 'package:mazzraati_vendor_app/features/auth/widgets/code_picker_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/social_button.dart';
-import 'package:mazzraati_vendor_app/features/more/screens/html_view_screen.dart';
-import 'package:mazzraati_vendor_app/helper/email_checker.dart';
+import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:mazzraati_vendor_app/helper/phone_checker.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
-import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/screens/registration_screen.dart';
-import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
-import 'package:mazzraati_vendor_app/features/auth/screens/forget_password_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,16 +34,16 @@ class LoginScreenState extends State<LoginScreen> {
     _formKeyLogin = GlobalKey<FormState>();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
-    _emailController!.text =
+    _emailController?.text =
         (Provider.of<AuthController>(context, listen: false).getUserEmail());
-    _passwordController!.text =
+    _passwordController?.text =
         (Provider.of<AuthController>(context, listen: false).getUserPassword());
   }
 
   @override
   void dispose() {
-    _emailController!.dispose();
-    _passwordController!.dispose();
+    _emailController?.dispose();
+    _passwordController?.dispose();
     super.dispose();
   }
 
@@ -101,7 +91,7 @@ class LoginScreenState extends State<LoginScreen> {
                           enabled: false, // Make country code non-editable
                           textStyle: TextStyle(
                             color:
-                                Theme.of(context).textTheme.displayLarge!.color,
+                                Theme.of(context).textTheme.displayLarge?.color,
                           ),
                         ),
                         Expanded(
@@ -153,7 +143,7 @@ class LoginScreenState extends State<LoginScreen> {
                                           builder: (_) =>
                                               const ForgotPasswordScreen())),
                                   child: Text(
-                                      '${getTranslated('forget_password', context)!} ؟',
+                                      '${getTranslated('forget_password', context) ?? ''} ؟',
                                       style: robotoRegular.copyWith(
                                         color: Theme.of(context).primaryColor,
                                       )))
@@ -169,8 +159,9 @@ class LoginScreenState extends State<LoginScreen> {
                           backgroundColor: Theme.of(context).primaryColor,
                           btnTxt: getTranslated('login', context),
                           onTap: () async {
-                            String email = _emailController!.text.trim();
-                            String password = _passwordController!.text.trim();
+                            String email = _emailController?.text.trim() ?? '';
+                            String password =
+                                _passwordController?.text.trim() ?? '';
                             log(email);
                             if (email.startsWith('0')) {
                               email = email.substring(1);
@@ -201,7 +192,7 @@ class LoginScreenState extends State<LoginScreen> {
                                   .login(context,
                                       emailAddress: email, password: password)
                                   .then((status) async {
-                                if (status.response!.statusCode == 200) {
+                                if (status.response?.statusCode == 200) {
                                   if (authProvider.isActiveRememberMe) {
                                     authProvider.saveUserNumberAndPassword(
                                         email, password);

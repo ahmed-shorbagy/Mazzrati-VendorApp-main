@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:mazzraati_vendor_app/features/language/controllers/language_controller.dart';
 import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/features/coupon/domain/models/coupon_model.dart';

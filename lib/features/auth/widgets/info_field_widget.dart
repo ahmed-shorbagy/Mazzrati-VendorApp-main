@@ -1,28 +1,22 @@
-import 'dart:io';
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_pass_textfeild_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/location_picker_screen.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/pass_view.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/validate_password_widget.dart';
-import 'package:mazzraati_vendor_app/features/order/screens/select_location_screen.dart';
-import 'package:mazzraati_vendor_app/features/order/widgets/location_search_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
+import 'package:mazzraati_vendor_app/features/auth/widgets/code_picker_widget.dart';
+import 'package:mazzraati_vendor_app/features/auth/widgets/location_picker_screen.dart';
+import 'package:mazzraati_vendor_app/features/auth/widgets/validate_password_widget.dart';
+import 'package:mazzraati_vendor_app/features/more/screens/html_view_screen.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/code_picker_widget.dart';
-import 'package:mazzraati_vendor_app/features/more/screens/html_view_screen.dart';
+import 'package:provider/provider.dart';
 
 class InfoFieldVIewWidget extends StatefulWidget {
   final bool isShopInfo;
@@ -117,9 +111,8 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                             padding: const EdgeInsets.only(
                                 left: Dimensions.paddingSizeSmall,
                                 right: Dimensions.paddingSizeSmall),
-                            child: Text(getTranslated('phone', context)!,
-                                style: robotoRegular.copyWith(
-                                    fontSize: Dimensions.fontSizeDefault))),
+                            child: TitleWidget(
+                                title: getTranslated('phone', context)!)),
                         const SizedBox(height: Dimensions.paddingSizeSmall),
                         Container(
                           decoration: BoxDecoration(
@@ -232,7 +225,8 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(getTranslated('email', context)!,
+                                Text(
+                                    "${getTranslated('email', context)!} (${getTranslated('optional', context)!})",
                                     style: robotoRegular.copyWith(
                                         fontSize: Dimensions.fontSizeDefault)),
                                 const SizedBox(
@@ -255,7 +249,6 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                         const SizedBox(
                             height: Dimensions.paddingSizeExtraSmall),
                         //!Id field
-
                         Container(
                             margin: const EdgeInsets.only(
                                 left: Dimensions.paddingSizeSmall,
@@ -264,11 +257,8 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(getTranslated('id', context)!,
-                                    style: robotoRegular.copyWith(
-                                        fontSize: Dimensions.fontSizeDefault)),
-                                const SizedBox(
-                                    height: Dimensions.paddingSizeSmall),
+                                TitleWidget(
+                                    title: getTranslated('id', context)!),
                                 Directionality(
                                   textDirection: TextDirection.ltr,
                                   child: CustomTextFieldWidget(
@@ -277,15 +267,14 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                                     focusNode: authProvider.idNode,
                                     maxSize: 10,
                                     nextNode: authProvider.phoneNode,
-                                    textInputType: TextInputType.emailAddress,
+                                    textInputType: TextInputType.number,
                                     controller: authProvider.idController,
                                     textInputAction: TextInputAction.next,
+                                    required: true,
                                   ),
                                 )
                               ],
                             )),
-                        const SizedBox(
-                            height: Dimensions.paddingSizeExtraSmall),
                         //!Location field
                         Container(
                           margin: const EdgeInsets.only(
@@ -296,21 +285,17 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                getTranslated('location', context) ??
-                                    "Location",
-                                style: robotoRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeDefault,
-                                ),
-                              ),
+                              TitleWidget(
+                                  title: getTranslated('location', context) ??
+                                      "Location"),
                               const SizedBox(
                                   height: Dimensions.paddingSizeSmall),
                               CustomButtonWidget(
-                                btnTxt:
-                                    getTranslated("Pick_Location", context) ??
+                                btnTxt: authProvider.selectedLocation != null
+                                    ? authProvider.address.trim()
+                                    : getTranslated("Pick_Location", context) ??
                                         "Pick Location",
                                 onTap: () {
-                                  // authProvider.isLoading = false;
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -482,7 +467,10 @@ class _InfoFieldVIewWidgetState extends State<InfoFieldVIewWidget> {
                                 PasswordCheckRow(
                                   isValid: authProvider.passwordsMatch,
                                   text: getTranslated(
-                                          'passwords_match', context) ??
+                                          authProvider.passwordsMatch
+                                              ? 'passwords_match'
+                                              : 'passwords_not_match',
+                                          context) ??
                                       "",
                                 ),
                             ],

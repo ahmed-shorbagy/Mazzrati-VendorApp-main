@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
 import 'package:mazzraati_vendor_app/features/auth/screens/auth_screen.dart';
-import 'package:mazzraati_vendor_app/features/more/screens/html_view_screen.dart';
 import 'package:mazzraati_vendor_app/features/auth/screens/registration_screen.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/utill/styles.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 
 class OptionScreen extends StatefulWidget {

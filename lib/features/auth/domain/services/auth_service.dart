@@ -104,22 +104,46 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
-  Future resetPassword(String identity, String otp, String password,
-      String confirmPassword) async {
-    ApiResponse apiResponse = await authRepoInterface.resetPassword(
-        identity, otp, password, confirmPassword);
-    if (apiResponse.response != null &&
-        apiResponse.response!.statusCode == 200) {
-      return ResponseModel(true, apiResponse.response!.data["message"]);
-    } else {
-      String? errorMessage;
-      if (apiResponse.error is String) {
-        errorMessage = apiResponse.error.toString();
+  Future<ResponseModel> resetPassword(String identity, String otp,
+      String password, String confirmPassword) async {
+    try {
+      ApiResponse apiResponse = await authRepoInterface.resetPassword(
+          identity, otp, password, confirmPassword);
+
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        return ResponseModel(true, apiResponse.response!.data["message"]);
       } else {
-        ErrorResponse errorResponse = apiResponse.error;
-        errorMessage = errorResponse.errors![0].message;
+        log("Reset Password Error Response: ${apiResponse.response?.data.toString() ?? ''}");
+        String errorMessage = 'Something went wrong';
+
+        if (apiResponse.error is String) {
+          errorMessage = apiResponse.error.toString();
+        } else if (apiResponse.response?.data != null) {
+          // Try to get error message from response data
+          final data = apiResponse.response!.data;
+          if (data is Map && data.containsKey('message')) {
+            errorMessage = data['message'];
+          } else if (data is Map && data.containsKey('errors')) {
+            final errors = data['errors'];
+            if (errors is Map) {
+              // Get first error message
+              errorMessage = errors.values.first[0] ?? errorMessage;
+            }
+          }
+        }
+
+        showCustomSnackBarWidget(
+          errorMessage,
+          Get.context!,
+          sanckBarType: SnackBarType.error,
+        );
+
+        return ResponseModel(false, errorMessage);
       }
-      return ResponseModel(false, errorMessage);
+    } catch (e) {
+      log("Reset Password Exception: $e");
+      return ResponseModel(false, e.toString());
     }
   }
 

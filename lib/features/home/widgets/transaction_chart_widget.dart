@@ -511,7 +511,7 @@ class TransactionChartState extends State<TransactionChart> {
                           isCurved: true,
                           color: commissionColor,
                           barWidth: 2,
-                          dotData: FlDotData(show: false),
+                          dotData: const FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
                             color: commissionColor.withOpacity(0.3),
@@ -524,7 +524,7 @@ class TransactionChartState extends State<TransactionChart> {
                           isCurved: true,
                           color: earningColor,
                           barWidth: 2,
-                          dotData: FlDotData(show: false),
+                          dotData: const FlDotData(show: false),
                           belowBarData: BarAreaData(
                             show: true,
                             color: earningColor.withOpacity(0.3),
@@ -532,7 +532,7 @@ class TransactionChartState extends State<TransactionChart> {
                         ),
                       ],
                       titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
+                        bottomTitles: const AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
                             reservedSize: 30,
@@ -563,7 +563,7 @@ class TransactionChartState extends State<TransactionChart> {
                           ),
                         ),
                       ),
-                      gridData: FlGridData(
+                      gridData: const FlGridData(
                         show: true,
 
                         // horizontalLines: [

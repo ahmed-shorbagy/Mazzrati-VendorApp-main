@@ -6,10 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_image_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_title_bar.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/meta_seo_widget.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
@@ -17,14 +14,12 @@ import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
-import 'package:mazzraati_vendor_app/utill/app_constants.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:textfield_tags/textfield_tags.dart';
 
 class AddProductSeoScreen extends StatefulWidget {
   final ValueChanged<bool>? isSelected;

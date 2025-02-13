@@ -2,7 +2,6 @@
 
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
 import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/attribute_view_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
@@ -11,9 +10,7 @@ import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_fe
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/attribute_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_section_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_title_bar.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/digital_product_widget.dart';
-import 'package:mazzraati_vendor_app/features/auction/controllers/add_auction_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/variant_type_model.dart';
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';

@@ -85,7 +85,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 orderModel: orderDetailsController.orderDetails?[0].order);
           })),
       body: isLoadData
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : RefreshIndicator(

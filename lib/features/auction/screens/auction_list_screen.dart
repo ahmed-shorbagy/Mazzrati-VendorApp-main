@@ -6,7 +6,6 @@ import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.da
 import 'package:mazzraati_vendor_app/common/basewidgets/no_data_screen.dart';
 import 'package:mazzraati_vendor_app/features/auction/controllers/add_auction_controller.dart';
 import 'package:mazzraati_vendor_app/features/auction/domain/models/auction_model.dart';
-import 'package:mazzraati_vendor_app/features/auction/screens/auction_details_screen.dart';
 import 'package:mazzraati_vendor_app/features/auction/widgets/auction_view_widget.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 
@@ -52,13 +51,7 @@ import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 //     );
 //   }
 // }
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Ensure you have provider package
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
-import 'package:mazzraati_vendor_app/features/auction/controllers/add_auction_controller.dart';
-import 'package:mazzraati_vendor_app/features/auction/domain/models/auction_model.dart';
-import 'package:mazzraati_vendor_app/features/auction/widgets/auction_view_widget.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
+// Ensure you have provider package
 
 class AuctionListScreen extends StatelessWidget {
   bool isFromButtonNavBar;

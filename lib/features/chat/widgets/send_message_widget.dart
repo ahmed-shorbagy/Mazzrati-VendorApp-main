@@ -8,7 +8,6 @@ import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:flutter/foundation.dart' as foundation;
 
 class SendMessageWidget extends StatefulWidget {
   final int? id;

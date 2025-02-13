@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/features/pos/controllers/cart_controller.dart';
-import 'package:mazzraati_vendor_app/features/delivery_man/controllers/delivery_man_controller.dart';
 import 'package:mazzraati_vendor_app/features/dashboard/controllers/bottom_menu_controller.dart';
+import 'package:mazzraati_vendor_app/features/delivery_man/controllers/delivery_man_controller.dart';
+import 'package:mazzraati_vendor_app/features/pos/controllers/cart_controller.dart';
 import 'package:mazzraati_vendor_app/features/product_details/controllers/productDetailsController.dart';
 import 'package:mazzraati_vendor_app/features/review/controllers/product_review_controller.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
+import 'package:provider/provider.dart';
 
 class CustomAppBarWidget extends StatelessWidget
     implements PreferredSizeWidget {
@@ -74,7 +74,7 @@ class CustomAppBarWidget extends StatelessWidget
           shadowColor: Theme.of(context).primaryColor.withOpacity(.5),
           titleSpacing: 0,
           automaticallyImplyLeading: automaticallyApplyLeading ?? true,
-          title: Text(title!,
+          title: Text(title ?? '',
               style: titilliumSemiBold.copyWith(
                   fontSize: Dimensions.fontSizeLarge,
                   color: Theme.of(context).textTheme.bodyLarge!.color)),

@@ -1,172 +1,265 @@
 import 'package:flutter/material.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
-import 'package:mazzraati_vendor_app/utill/color_resources.dart';
-import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/utill/images.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/reset_password_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_pass_textfeild_widget.dart';
+import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
+import 'package:mazzraati_vendor_app/utill/dimensions.dart';
+import 'package:mazzraati_vendor_app/utill/styles.dart';
+import 'package:provider/provider.dart';
 
-class VerificationScreen extends StatelessWidget {
-  final String mobileNumber;
+class VerificationScreen extends StatefulWidget {
+  final String phoneNumber;
+  final bool fromForgetPassword;
 
-  const VerificationScreen(this.mobileNumber, {super.key});
+  const VerificationScreen(this.phoneNumber,
+      {this.fromForgetPassword = false, super.key});
+
+  @override
+  State<VerificationScreen> createState() => _VerificationScreenState();
+}
+
+class _VerificationScreenState extends State<VerificationScreen> {
+  TextEditingController newPasswordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
+  FocusNode newPasswordNode = FocusNode();
+  FocusNode confirmPasswordNode = FocusNode();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  bool isOtpVerified = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Scrollbar(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Center(
-              child: SizedBox(
-                width: 1170,
-                child: Consumer<AuthController>(
-                  builder: (context, authProvider, child) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 55),
-                      Image.asset(
-                        Images.logo,
-                        width: 100,
-                        height: 100,
+      appBar: CustomAppBarWidget(
+        title: getTranslated(
+          isOtpVerified ? 'enter_new_password' : 'verify_otp',
+          context,
+        ),
+        isBackButtonExist: true,
+      ),
+      body: Consumer<AuthController>(builder: (context, authProvider, child) {
+        return SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                if (!isOtpVerified) ...[
+                  Text(
+                    getTranslated('please_enter_4_digit_code', context)!,
+                    style: titilliumRegular.copyWith(
+                      color: Theme.of(context).hintColor,
+                      fontSize: Dimensions.fontSizeDefault,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeSmall,
+                      vertical: Dimensions.paddingSizeLarge,
+                    ),
+                    child: Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(6, (index) {
+                          return SizedBox(
+                            width: 40,
+                            height: 50,
+                            child: TextField(
+                              controller: authProvider.controllers[index],
+                              focusNode: authProvider.focusNodes[index],
+                              textAlign: TextAlign.center,
+                              maxLength: 1,
+                              keyboardType: TextInputType.number,
+                              style: Theme.of(context).textTheme.titleSmall,
+                              decoration: InputDecoration(
+                                counterText: '',
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context)
+                                        .primaryColor
+                                        .withOpacity(0.5),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              ),
+                              onChanged: (value) {
+                                authProvider.handleTextChange(
+                                    value, index, context);
+                              },
+                            ),
+                          );
+                        }),
                       ),
-                      const SizedBox(height: 40),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 50),
-                        child: Center(
-                            child: Text(
-                          '${getTranslated('please_enter_4_digit_code', context)}\n$mobileNumber',
-                          textAlign: TextAlign.center,
-                        )),
-                      ),
-                      Padding(
+                    ),
+                  ),
+                ],
+                if (isOtpVerified) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeDefault,
+                      vertical: Dimensions.paddingSizeSmall,
+                    ),
+                    child: Column(
+                      children: [
+                        CustomPasswordTextFieldWidget(
+                          border: true,
+                          hintTxt: getTranslated('new_password', context),
+                          controller: newPasswordController,
+                          focusNode: newPasswordNode,
+                          nextNode: confirmPasswordNode,
+                          textInputAction: TextInputAction.next,
+                        ),
+                        const SizedBox(height: Dimensions.paddingSizeDefault),
+                        CustomPasswordTextFieldWidget(
+                          border: true,
+                          hintTxt: getTranslated('confirm_password', context),
+                          controller: confirmPasswordController,
+                          focusNode: confirmPasswordNode,
+                          textInputAction: TextInputAction.done,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                !authProvider.isPhoneNumberVerificationButtonLoading
+                    ? Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 39, vertical: 35),
-                        child: PinCodeTextField(
-                          length: 4,
-                          appContext: context,
-                          obscureText: false,
-                          showCursor: true,
-                          keyboardType: TextInputType.number,
-                          animationType: AnimationType.fade,
-                          pinTheme: PinTheme(
-                            shape: PinCodeFieldShape.box,
-                            fieldHeight: 63,
-                            fieldWidth: 55,
-                            borderWidth: 1,
-                            borderRadius: BorderRadius.circular(10),
-                            selectedColor: ColorResources.colorMap[200],
-                            selectedFillColor: Colors.white,
-                            inactiveFillColor:
-                                ColorResources.getSearchBg(context),
-                            inactiveColor: ColorResources.colorMap[200],
-                            activeColor: ColorResources.colorMap[400],
-                            activeFillColor:
-                                ColorResources.getSearchBg(context),
+                          horizontal: Dimensions.paddingSizeDefault,
+                        ),
+                        child: CustomButtonWidget(
+                          btnTxt: getTranslated(
+                            isOtpVerified ? 'reset_password' : 'verify',
+                            context,
                           ),
-                          animationDuration: const Duration(milliseconds: 300),
-                          backgroundColor: Colors.transparent,
-                          enableActiveFill: true,
-                          onChanged: authProvider.updateVerificationCode,
-                          beforeTextPaste: (text) {
-                            return true;
+                          onTap: () {
+                            String otp = authProvider.controllers
+                                .map((controller) => controller.text)
+                                .join();
+                            if (otp.length != 6) {
+                              showCustomSnackBarWidget(
+                                getTranslated('input_valid_otp', context),
+                                context,
+                                sanckBarType: SnackBarType.error,
+                              );
+                            } else if (!isOtpVerified) {
+                              authProvider
+                                  .verify_Otp(widget.phoneNumber, otp)
+                                  .then((isVerified) {
+                                if (isVerified) {
+                                  setState(() {
+                                    isOtpVerified = true;
+                                  });
+                                }
+                              });
+                            } else {
+                              if (newPasswordController.text.isEmpty) {
+                                showCustomSnackBarWidget(
+                                  getTranslated(
+                                      'password_is_required', context),
+                                  context,
+                                  sanckBarType: SnackBarType.warning,
+                                );
+                              } else if (newPasswordController.text.length <
+                                  8) {
+                                showCustomSnackBarWidget(
+                                  getTranslated(
+                                      'password_minimum_length_is_6', context),
+                                  context,
+                                  sanckBarType: SnackBarType.warning,
+                                );
+                              } else if (confirmPasswordController
+                                  .text.isEmpty) {
+                                showCustomSnackBarWidget(
+                                  getTranslated(
+                                      'confirm_password_is_required', context),
+                                  context,
+                                  sanckBarType: SnackBarType.warning,
+                                );
+                              } else if (newPasswordController.text !=
+                                  confirmPasswordController.text) {
+                                showCustomSnackBarWidget(
+                                  getTranslated(
+                                      'password_is_mismatch', context),
+                                  context,
+                                  sanckBarType: SnackBarType.warning,
+                                );
+                              } else {
+                                authProvider
+                                    .resetPassword(
+                                  widget.phoneNumber,
+                                  otp,
+                                  newPasswordController.text,
+                                  confirmPasswordController.text,
+                                )
+                                    .then((value) {
+                                  if (value.isSuccess) {
+                                    Navigator.of(context)
+                                        .pushNamedAndRemoveUntil(
+                                      '/login',
+                                      (route) => false,
+                                    );
+                                    showCustomSnackBarWidget(
+                                      getTranslated(
+                                          'password_reset_successfully',
+                                          context),
+                                      context,
+                                      sanckBarType: SnackBarType.success,
+                                    );
+                                  }
+                                });
+                              }
+                            }
                           },
                         ),
+                      )
+                    : Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor,
+                          ),
+                        ),
                       ),
-                      Center(
-                          child: Text(
-                        getTranslated('i_didnt_receive_the_code', context)!,
-                      )),
-                      Center(
-                        child: InkWell(
-                          splashColor: Colors.transparent,
-                          onTap: () {
-                            Provider.of<AuthController>(context, listen: false)
-                                .forgotPassword(mobileNumber)
-                                .then((value) {
-                              if (value.isSuccess) {
-                                showCustomSnackBarWidget(
-                                    'Resent code successful', context,
-                                    isError: false,
-                                    sanckBarType: SnackBarType.success);
-                              } else {
-                                showCustomSnackBarWidget(
-                                    value.message, context);
-                              }
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(
-                                Dimensions.paddingSizeExtraSmall),
-                            child: Text(
-                              getTranslated('resend_code', context)!,
+                if (!isOtpVerified) ...[
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
+                  TextButton(
+                    onPressed: () {
+                      authProvider.sendOtp(widget.phoneNumber);
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text:
+                                "${getTranslated('i_didnt_receive_the_code', context)} ",
+                            style: titilliumRegular.copyWith(
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge!.color,
                             ),
                           ),
-                        ),
+                          TextSpan(
+                            text: getTranslated('resend_code', context),
+                            style: titilliumRegular.copyWith(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 48),
-                      authProvider.isEnableVerificationCode
-                          ? !authProvider.isPhoneNumberVerificationButtonLoading
-                              ? Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: Dimensions.paddingSizeLarge),
-                                  child: CustomButtonWidget(
-                                    btnTxt: getTranslated('verify', context),
-                                    onTap: () {
-                                      bool phoneVerification =
-                                          Provider.of<SplashController>(context,
-                                                      listen: false)
-                                                  .configModel!
-                                                  .forgotPasswordVerification ==
-                                              'phone';
-                                      if (phoneVerification) {
-                                        Provider.of<AuthController>(context,
-                                                listen: false)
-                                            .verifyOtp(mobileNumber, "")
-                                            .then((value) {
-                                          if (value.isSuccess) {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (_) =>
-                                                        ResetPasswordWidget(
-                                                            mobileNumber:
-                                                                mobileNumber,
-                                                            otp: authProvider
-                                                                .verificationCode)),
-                                                (route) => false);
-                                          } else {
-                                            showCustomSnackBarWidget(
-                                                getTranslated(
-                                                    'input_valid_otp', context),
-                                                context,
-                                                sanckBarType:
-                                                    SnackBarType.error);
-                                          }
-                                        });
-                                      }
-                                    },
-                                  ),
-                                )
-                              : Center(
-                                  child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Theme.of(context).primaryColor)))
-                          : const SizedBox.shrink()
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                ],
+              ],
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

@@ -1,19 +1,16 @@
-import 'dart:developer';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
 import 'package:mazzraati_vendor_app/features/auth/widgets/code_picker_widget.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
-import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
+import 'package:provider/provider.dart';
 
 class VerifyPhone extends StatefulWidget {
   const VerifyPhone({super.key});
@@ -216,8 +213,43 @@ class _VerifyPhoneState extends State<VerifyPhone> {
                                       btnTxt:
                                           "${getTranslated('send_otp', context)}",
                                       onTap: () async {
-                                        authProvider.sendOtp(
-                                            authProvider.phoneController.text);
+                                        if (authProvider.phoneController.text
+                                            .trim()
+                                            .isEmpty) {
+                                          showCustomSnackBarWidget(
+                                              getTranslated(
+                                                  'phone_number_is_required',
+                                                  context),
+                                              context,
+                                              sanckBarType:
+                                                  SnackBarType.warning);
+                                        } else if (!authProvider
+                                            .phoneController.text
+                                            .trim()
+                                            .startsWith('5')) {
+                                          showCustomSnackBarWidget(
+                                              getTranslated(
+                                                  'phone_must_start_with_5',
+                                                  context),
+                                              context,
+                                              sanckBarType:
+                                                  SnackBarType.warning);
+                                        } else if (authProvider
+                                                .phoneController.text
+                                                .trim()
+                                                .length !=
+                                            9) {
+                                          showCustomSnackBarWidget(
+                                              getTranslated(
+                                                  'phone_must_be_9_digits',
+                                                  context),
+                                              context,
+                                              sanckBarType:
+                                                  SnackBarType.warning);
+                                        } else {
+                                          authProvider.sendOtp(authProvider
+                                              .phoneController.text);
+                                        }
                                       }),
                                 ),
                         if (authProvider.isOTPSent) ...[

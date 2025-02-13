@@ -4,7 +4,6 @@ import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_pass_te
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/utill/styles.dart';
 
 class PasswordValidationWidget extends StatelessWidget {
   const PasswordValidationWidget({super.key});

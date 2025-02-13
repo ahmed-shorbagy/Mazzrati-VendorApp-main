@@ -1,30 +1,27 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
-import 'package:path/path.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/domain/models/register_model.dart';
 import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
 import 'package:mazzraati_vendor_app/data/model/response/response_model.dart';
+import 'package:mazzraati_vendor_app/features/auth/domain/models/register_model.dart';
 import 'package:mazzraati_vendor_app/features/auth/domain/services/auth_service_interface.dart';
+import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
-import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
-import 'dart:typed_data';
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:mazzraati_vendor_app/utill/app_constants.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:image/image.dart' as img;
-import 'package:image/image.dart' as image;
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController with ChangeNotifier {
   final AuthServiceInterface authServiceInterface;
@@ -343,8 +340,26 @@ class AuthController with ChangeNotifier {
     _isPhoneNumberVerificationButtonLoading = true;
     _verificationMsg = '';
     notifyListeners();
+
+    // Format phone number if needed
+    String formattedPhone = identity.startsWith('+966')
+        ? identity
+        : identity.startsWith('966')
+            ? '+$identity'
+            : '+966$identity';
+
+    // Create request body
+    Map<String, dynamic> body = {
+      "identity": formattedPhone,
+      "otp": otp,
+      "password": password,
+      "confirm_password": confirmPassword,
+      "_method": "put"
+    };
+
     ResponseModel responseModel = await authServiceInterface.resetPassword(
-        identity, otp, password, confirmPassword);
+        formattedPhone, otp, password, confirmPassword);
+
     _isPhoneNumberVerificationButtonLoading = false;
     _verificationMsg = responseModel.message;
     notifyListeners();
@@ -530,7 +545,19 @@ class AuthController with ChangeNotifier {
   }
 
   checkPasswordMatch() {
-    if (passwordController.text == confirmPasswordController.text) {
+    String password = passwordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
+
+    // Convert both passwords to the same direction for comparison
+    String normalizedPassword = password;
+    String normalizedConfirmPassword = confirmPassword;
+
+    // Remove any whitespace and normalize the strings
+    normalizedPassword = normalizedPassword.replaceAll(RegExp(r'\s+'), '');
+    normalizedConfirmPassword =
+        normalizedConfirmPassword.replaceAll(RegExp(r'\s+'), '');
+
+    if (normalizedPassword == normalizedConfirmPassword) {
       _passwordsMatch = true;
     } else {
       _passwordsMatch = false;
@@ -539,12 +566,15 @@ class AuthController with ChangeNotifier {
   }
 
   bool isPasswordValid() {
-    return (_lengthCheck &&
-        _numberCheck &&
-        _lowercaseCheck &&
-        _uppercaseCheck &&
-        _spatialCheck &&
-        _numberCheck);
+    String password = passwordController.text.trim();
+    // Remove any whitespace for validation
+    password = password.replaceAll(RegExp(r'\s+'), '');
+
+    return (password.length >= 8 &&
+        password.contains(RegExp(r'[0-9]')) &&
+        password.contains(RegExp(r'[a-z]')) &&
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')));
   }
 
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
@@ -571,7 +601,8 @@ class AuthController with ChangeNotifier {
   LatLng? get selectedLocation => _selectedLocation;
 
   void setAddress(String value, {LatLng? location}) {
-    _address = value;
+    // Trim and format the address
+    _address = value.trim().replaceAll(RegExp(r'\s+'), ' ');
     _selectedLocation = location;
     Logger(
       printer: PrettyPrinter(),

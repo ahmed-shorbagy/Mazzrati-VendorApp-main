@@ -168,7 +168,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen>
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.copy,
+                                icon: const Icon(Icons.copy,
                                     size: 18, color: Colors.black),
                                 onPressed: () {
                                   String email = winnerBid?.user.email ?? "";
@@ -203,7 +203,7 @@ class _AuctionDetailsScreenState extends State<AuctionDetailsScreen>
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.copy,
+                                icon: const Icon(Icons.copy,
                                     size: 18, color: Colors.black),
                                 onPressed: () {
                                   String phone = winnerBid?.user.phone ?? "";

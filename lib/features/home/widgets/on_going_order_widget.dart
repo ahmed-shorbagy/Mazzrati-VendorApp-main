@@ -74,7 +74,7 @@ class OngoingOrderWidget extends StatelessWidget {
                       //   width: Dimensions.paddingSizeSmall,
                       // ),
                       order.isAddButtonClicked
-                          ? Expanded(
+                          ? const Expanded(
                               child: Center(
                               child: CircularProgressIndicator(),
                             ))

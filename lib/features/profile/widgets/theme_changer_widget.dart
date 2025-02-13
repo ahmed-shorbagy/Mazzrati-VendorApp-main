@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_switch/flutter_switch.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/features/shipping/controllers/shipping_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
-import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_dialog_widget.dart';
 import 'package:mazzraati_vendor_app/features/bank_info/screens/bank_info_screen.dart';
 import 'package:mazzraati_vendor_app/features/menu/widgets/sign_out_confirmation_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/features/settings/screens/order_wise_shipping_list_screen.dart';
 import 'package:mazzraati_vendor_app/features/settings/screens/setting_screen.dart';
-import 'package:mazzraati_vendor_app/features/shipping/screens/category_wise_shipping_screen.dart';
-import 'package:mazzraati_vendor_app/features/shipping/widgets/product_wise_shipping_widget.dart';
 
 class ThemeChangerWidget extends StatelessWidget {
   const ThemeChangerWidget({super.key});

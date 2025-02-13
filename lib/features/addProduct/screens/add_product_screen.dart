@@ -1,15 +1,10 @@
 import 'dart:math';
-import 'dart:developer' as dev;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/edt_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_section_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_title_bar.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';

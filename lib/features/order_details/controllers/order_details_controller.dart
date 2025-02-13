@@ -252,8 +252,9 @@ class OrderDetailsController extends ChangeNotifier {
           downloadDirectory = await getApplicationDocumentsDirectory();
         } else {
           downloadDirectory = Directory('/storage/emulated/0/Download');
-          if (!await downloadDirectory.exists())
+          if (!await downloadDirectory.exists()) {
             downloadDirectory = (await getExternalStorageDirectory())!;
+          }
         }
 
         String filePathName = "${downloadDirectory.path}/$fileName";

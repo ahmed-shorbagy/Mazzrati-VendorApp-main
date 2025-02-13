@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
+import 'package:mazzraati_vendor_app/features/language/screens/change_language_screen.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/features/language/screens/change_language_screen.dart';
-import 'package:mazzraati_vendor_app/features/settings/widgets/choose_shipping_dialog_widget.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

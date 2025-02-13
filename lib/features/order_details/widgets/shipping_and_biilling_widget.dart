@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/features/order/domain/models/order_model.dart';
-import 'package:mazzraati_vendor_app/features/order_details/controllers/order_details_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
@@ -10,7 +7,6 @@ import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
 import 'package:mazzraati_vendor_app/features/order/screens/edit_address_screen.dart';
 import 'package:mazzraati_vendor_app/features/order/widgets/icon_with_text_row_widget.dart';
-import 'package:mazzraati_vendor_app/features/order_details/widgets/show_on_map_dialog_widget.dart';
 
 class ShippingAndBillingWidget extends StatelessWidget {
   final Order? orderModel;

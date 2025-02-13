@@ -2,16 +2,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/features/barcode/controllers/barcode_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
-import 'package:mazzraati_vendor_app/features/product/domain/models/suggested_product.dart';
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
-import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
-import 'package:mazzraati_vendor_app/features/profile/controllers/profile_controller.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/utill/app_constants.dart';

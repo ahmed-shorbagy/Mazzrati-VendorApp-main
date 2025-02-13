@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -8,7 +7,6 @@ import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.d
 import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/srock_limit_model.dart';
-import 'package:mazzraati_vendor_app/features/product/domain/models/suggested_product.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/services/product_service_interface.dart';
 import 'package:mazzraati_vendor_app/features/review/controllers/product_review_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/top_selling_product_model.dart';

@@ -1,19 +1,17 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/features/auth/screens/options_screen.dart';
-import 'package:mazzraati_vendor_app/helper/network_info.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
+import 'package:mazzraati_vendor_app/features/auth/screens/options_screen.dart';
+import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/helper/network_info.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/utill/app_constants.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/features/auth/screens/auth_screen.dart';
-import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
-import 'package:mazzraati_vendor_app/features/splash/widgets/splash_painter_widget.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/features/auth/screens/otp_verification_screen.dart';
+import 'package:mazzraati_vendor_app/features/auth/widgets/code_picker_widget.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/my_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/features/auth/screens/otp_verification_screen.dart';
+import 'package:provider/provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -22,14 +20,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final TextEditingController _controller = TextEditingController();
   final TextEditingController _numberController = TextEditingController();
   final FocusNode _numberFocus = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,130 +43,138 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Text('${getTranslated('forget_password', context)}?',
                     style: robotoMedium),
               ),
-              Provider.of<SplashController>(context, listen: false)
-                          .configModel!
-                          .forgotPasswordVerification ==
-                      "phone"
-                  ? Text(
-                      getTranslated(
-                          'enter_phone_number_for_password_reset', context)!,
-                      style: titilliumRegular.copyWith(
-                          color: Theme.of(context).hintColor,
-                          fontSize: Dimensions.fontSizeExtraSmall))
-                  : Text(
-                      getTranslated('enter_email_for_password_reset', context)!,
-                      style: titilliumRegular.copyWith(
-                          color: Theme.of(context).hintColor,
-                          fontSize: Dimensions.fontSizeDefault)),
+              Text(
+                getTranslated(
+                    'enter_phone_number_for_password_reset', context)!,
+                style: titilliumRegular.copyWith(
+                  color: Theme.of(context).hintColor,
+                  fontSize: Dimensions.fontSizeDefault,
+                ),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: Dimensions.paddingSizeExtraLarge),
-              Provider.of<SplashController>(context, listen: false)
-                          .configModel!
-                          .forgotPasswordVerification ==
-                      "phone"
-                  ? CustomTextFieldWidget(
-                      border: true,
-                      hintText: getTranslated('number_hint', context),
-                      controller: _numberController,
-                      focusNode: _numberFocus,
-                      isPhoneNumber: true,
-                      textInputAction: TextInputAction.done,
-                      textInputType: TextInputType.phone,
-                    )
-                  : CustomTextFieldWidget(
-                      border: true,
-                      prefixIconImage: Images.emailIcon,
-                      controller: _controller,
-                      hintText: getTranslated('ENTER_YOUR_EMAIL', context),
-                      textInputAction: TextInputAction.done,
-                      textInputType: TextInputType.emailAddress,
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 1,
+                    color: Theme.of(context).hintColor.withOpacity(.35),
+                  ),
+                  color: Theme.of(context).highlightColor,
+                  borderRadius:
+                      BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
+                ),
+                margin: const EdgeInsets.only(
+                  left: Dimensions.paddingSizeSmall,
+                  right: Dimensions.paddingSizeSmall,
+                ),
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Row(
+                    children: [
+                      CodePickerWidget(
+                        onChanged: null,
+                        initialSelection: '+966',
+                        favorite: const ['+966'],
+                        showDropDownButton: false,
+                        padding: EdgeInsets.zero,
+                        showFlagMain: true,
+                        enabled: false,
+                        textStyle: TextStyle(
+                          color:
+                              Theme.of(context).textTheme.displayLarge!.color,
+                        ),
+                      ),
+                      Expanded(
+                        child: CustomTextFieldWidget(
+                          hintText: getTranslated('mobile_hint', context),
+                          controller: _numberController,
+                          focusNode: _numberFocus,
+                          maxSize: 9,
+                          idDate: false,
+                          isPhoneNumber: true,
+                          border: false,
+                          focusBorder: false,
+                          textInputAction: TextInputAction.done,
+                          textInputType: TextInputType.phone,
+                          onChanged: (value) {
+                            if (value.startsWith('0')) {
+                              _numberController.text = value.substring(1);
+                              _numberController.selection =
+                                  TextSelection.fromPosition(
+                                TextPosition(
+                                    offset: _numberController.text.length),
+                              );
+                            } else if (!value.startsWith('5') &&
+                                value.isNotEmpty) {
+                              showCustomSnackBarWidget(
+                                getTranslated(
+                                    'phone_must_start_with_5', context),
+                                context,
+                                sanckBarType: SnackBarType.warning,
+                              );
+                              _numberController.clear();
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: Dimensions.paddingSizeExtraLarge),
               Consumer<AuthController>(builder: (context, authProvider, _) {
                 return !authProvider.isLoading
                     ? CustomButtonWidget(
                         borderRadius: 10,
-                        btnTxt: Provider.of<SplashController>(context,
-                                        listen: false)
-                                    .configModel!
-                                    .forgotPasswordVerification ==
-                                "phone"
-                            ? getTranslated('send_otp', context)
-                            : getTranslated('send_email', context),
+                        btnTxt: getTranslated('send_otp', context),
                         onTap: () {
-                          if (Provider.of<SplashController>(context,
-                                      listen: false)
-                                  .configModel!
-                                  .forgotPasswordVerification ==
-                              "phone") {
-                            if (_numberController.text.isEmpty) {
-                              showCustomSnackBarWidget(
-                                  getTranslated(
-                                      'PHONE_MUST_BE_REQUIRED', context),
-                                  context,
-                                  sanckBarType: SnackBarType.warning);
-                            } else {
-                              authProvider
-                                  .forgotPassword(_numberController.text.trim())
-                                  .then((value) {
-                                if (value.isSuccess) {
-                                  Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (_) => VerificationScreen(
-                                              _numberController.text.trim())),
-                                      (route) => false);
-                                } else {
-                                  showCustomSnackBarWidget(
-                                      getTranslated(
-                                          'input_valid_phone_number', context),
-                                      context,
-                                      sanckBarType: SnackBarType.warning);
-                                }
-                              });
-                            }
+                          String phone = _numberController.text.trim();
+                          if (phone.isEmpty) {
+                            showCustomSnackBarWidget(
+                              getTranslated('phone_is_required', context),
+                              context,
+                              sanckBarType: SnackBarType.warning,
+                            );
+                          } else if (!phone.startsWith('5') ||
+                              phone.length != 9) {
+                            showCustomSnackBarWidget(
+                              getTranslated(
+                                  'please_enter_valid_phone', context),
+                              context,
+                              sanckBarType: SnackBarType.warning,
+                            );
                           } else {
-                            if (_controller.text.isEmpty) {
-                              showCustomSnackBarWidget(
+                            // Format phone number with country code
+                            String formattedPhone = '+966$phone';
+                            authProvider.sendOtp(formattedPhone).then((value) {
+                              if (authProvider.isOTPSent) {
+                                showCustomSnackBarWidget(
                                   getTranslated(
-                                      'EMAIL_MUST_BE_REQUIRED', context),
+                                      'otp_sent_successfully', context),
                                   context,
-                                  sanckBarType: SnackBarType.warning);
-                            } else {
-                              Provider.of<AuthController>(context,
-                                      listen: false)
-                                  .forgotPassword(_controller.text)
-                                  .then((value) {
-                                if (value.isSuccess) {
-                                  FocusScopeNode currentFocus =
-                                      FocusScope.of(context);
-                                  if (!currentFocus.hasPrimaryFocus) {
-                                    currentFocus.unfocus();
-                                  }
-                                  _controller.clear();
-                                  showAnimatedDialogWidget(
-                                      context,
-                                      MyDialogWidget(
-                                        icon: Icons.send,
-                                        title: getTranslated('sent', context),
-                                        description: getTranslated(
-                                            'recovery_link_sent', context),
-                                        rotateAngle: 5.5,
-                                      ),
-                                      dismissible: false);
-                                } else {
-                                  showCustomSnackBarWidget(
-                                      value.message, context,
-                                      sanckBarType: SnackBarType.success);
-                                }
-                              });
-                            }
+                                  sanckBarType: SnackBarType.success,
+                                );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => VerificationScreen(
+                                      formattedPhone,
+                                      fromForgetPassword: true,
+                                    ),
+                                  ),
+                                );
+                              }
+                            });
                           }
                         },
                       )
                     : Center(
                         child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Theme.of(context).primaryColor)));
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      );
               }),
             ],
           ),

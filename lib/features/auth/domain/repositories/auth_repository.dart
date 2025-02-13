@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -69,6 +70,7 @@ class AuthRepository implements AuthRepositoryInterface {
       });
       return ApiResponse.withSuccess(response);
     } catch (e) {
+      log(e.toString());
       return ApiResponse.withError(ApiErrorHandler.getMessage(e));
     }
   }

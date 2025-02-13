@@ -1,23 +1,20 @@
-import 'dart:developer';
-
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
+import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
 import 'package:mazzraati_vendor_app/features/auth/domain/models/register_model.dart';
 import 'package:mazzraati_vendor_app/features/auth/widgets/info_field_widget.dart';
 import 'package:mazzraati_vendor_app/features/auth/widgets/register_first_tab.dart';
 import 'package:mazzraati_vendor_app/features/auth/widgets/register_successfull_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/features/bank_info/screens/bank_editing_screen.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/helper/email_checker.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationScreen extends StatefulWidget {
   bool? fromOptions;
@@ -226,6 +223,16 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                                                   context,
                                                   sanckBarType:
                                                       SnackBarType.warning);
+                                            } else if (authController
+                                                    .selectedLocation ==
+                                                null) {
+                                              showCustomSnackBarWidget(
+                                                  getTranslated(
+                                                      'location_is_required',
+                                                      context),
+                                                  context,
+                                                  sanckBarType:
+                                                      SnackBarType.warning);
                                             } else {
                                               _tabController!.animateTo(
                                                   (_tabController!.index + 1) %
@@ -258,38 +265,17 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                                                   sanckBarType:
                                                       SnackBarType.warning);
                                             } else if (authController
-                                                .firstNameController.text
-                                                .trim()
-                                                .isEmpty) {
-                                              showCustomSnackBarWidget(
-                                                  getTranslated(
-                                                      'first_name_is_required',
-                                                      context),
-                                                  context,
-                                                  sanckBarType:
-                                                      SnackBarType.warning);
-                                            } else if (authController
-                                                .lastNameController.text
-                                                .trim()
-                                                .isEmpty) {
-                                              showCustomSnackBarWidget(
-                                                  getTranslated(
-                                                      'last_name_is_required',
-                                                      context),
-                                                  context,
-                                                  sanckBarType:
-                                                      SnackBarType.warning);
-                                            } else if (EmailChecker.isNotValid(
-                                                    authController
-                                                        .emailController.text
-                                                        .trim()) &&
-                                                authController
                                                     .emailController.text
                                                     .trim()
-                                                    .isEmpty) {
+                                                    .isNotEmpty &&
+                                                EmailChecker.isNotValid(
+                                                    authController
+                                                        .emailController.text
+                                                        .trim())) {
                                               showCustomSnackBarWidget(
                                                   getTranslated(
-                                                      'id_required', context),
+                                                      'enter_valid_email',
+                                                      context),
                                                   context,
                                                   sanckBarType:
                                                       SnackBarType.warning);
