@@ -10,6 +10,7 @@ abstract class AuthRepositoryInterface implements RepositoryInterface {
   Future<ApiResponse> resetPassword(
       String identity, String otp, String password, String confirmPassword);
   Future<ApiResponse> verifyOtp(String identity, String otp);
+  Future<ApiResponse> resetPasswordVerifyOtp(String identity, String otp);
   Future<ApiResponse> updateToken();
   Future<void> saveUserToken(String token);
   String getUserToken();
@@ -21,5 +22,5 @@ abstract class AuthRepositoryInterface implements RepositoryInterface {
   Future<bool> clearUserNumberAndPassword();
   Future<ApiResponse> registration(XFile? profileImage, XFile? shopLogo,
       XFile? shopBanner, XFile? secondaryBanner, RegisterModel registerModel);
-  Future<ApiResponse> SendOtp(String phone);
+  Future<ApiResponse> sendOtp(String phone);
 }

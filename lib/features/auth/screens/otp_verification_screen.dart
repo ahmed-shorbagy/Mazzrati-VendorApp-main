@@ -3,6 +3,7 @@ import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.da
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_pass_textfeild_widget.dart';
+import 'package:mazzraati_vendor_app/data/model/response/response_model.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
@@ -139,7 +140,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             isOtpVerified ? 'reset_password' : 'verify',
                             context,
                           ),
-                          onTap: () {
+                          onTap: () async {
                             String otp = authProvider.controllers
                                 .map((controller) => controller.text)
                                 .join();
@@ -150,16 +151,32 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 sanckBarType: SnackBarType.error,
                               );
                             } else if (!isOtpVerified) {
-                              authProvider
-                                  .verify_Otp(widget.phoneNumber, otp)
-                                  .then((isVerified) {
-                                if (isVerified) {
-                                  setState(() {
-                                    isOtpVerified = true;
-                                  });
-                                }
-                              });
+                              // First verify OTP using resetPasswordVerifyOtp
+                              final response =
+                                  await authProvider.resetPasswordVerifyOtp(
+                                      widget.phoneNumber, otp);
+
+                              if (response.isSuccess) {
+                                setState(() {
+                                  isOtpVerified = true;
+                                });
+                                showCustomSnackBarWidget(
+                                  getTranslated(
+                                      'otp_verified_successfully', context),
+                                  context,
+                                  sanckBarType: SnackBarType.success,
+                                );
+                              } else {
+                                showCustomSnackBarWidget(
+                                  getTranslated(
+                                      response.message ?? 'invalid_otp',
+                                      context),
+                                  context,
+                                  sanckBarType: SnackBarType.error,
+                                );
+                              }
                             } else {
+                              // Handle password reset after OTP verification
                               if (newPasswordController.text.isEmpty) {
                                 showCustomSnackBarWidget(
                                   getTranslated(
@@ -192,15 +209,16 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   sanckBarType: SnackBarType.warning,
                                 );
                               } else {
-                                authProvider
-                                    .resetPassword(
-                                  widget.phoneNumber,
-                                  otp,
-                                  newPasswordController.text,
-                                  confirmPasswordController.text,
-                                )
-                                    .then((value) {
-                                  if (value.isSuccess) {
+                                try {
+                                  ResponseModel response =
+                                      await authProvider.resetPassword(
+                                    widget.phoneNumber,
+                                    otp,
+                                    newPasswordController.text,
+                                    confirmPasswordController.text,
+                                  );
+
+                                  if (response.isSuccess) {
                                     Navigator.of(context)
                                         .pushNamedAndRemoveUntil(
                                       '/login',
@@ -213,8 +231,24 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                       context,
                                       sanckBarType: SnackBarType.success,
                                     );
+                                  } else {
+                                    showCustomSnackBarWidget(
+                                      getTranslated(
+                                          response.message ??
+                                              'something_went_wrong',
+                                          context),
+                                      context,
+                                      sanckBarType: SnackBarType.error,
+                                    );
                                   }
-                                });
+                                } catch (e) {
+                                  showCustomSnackBarWidget(
+                                    getTranslated(
+                                        'something_went_wrong', context),
+                                    context,
+                                    sanckBarType: SnackBarType.error,
+                                  );
+                                }
                               }
                             }
                           },

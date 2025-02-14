@@ -62,7 +62,6 @@ class AuthRepository implements AuthRepositoryInterface {
     try {
       Response response =
           await dioClient!.post(AppConstants.resetPasswordUri, data: {
-        "_method": "put",
         "identity": identity.trim(),
         "otp": otp,
         "password": password,
@@ -76,7 +75,7 @@ class AuthRepository implements AuthRepositoryInterface {
   }
 
   @override
-  Future<ApiResponse> SendOtp(String phone) async {
+  Future<ApiResponse> sendOtp(String phone) async {
     try {
       Response response = await dioClient!
           .post(AppConstants.SendOtpUri, data: {"phone": phone});
@@ -91,6 +90,20 @@ class AuthRepository implements AuthRepositoryInterface {
     try {
       Response response = await dioClient!.post(AppConstants.verifyOtpUri,
           data: {"phone": phoneNumber, "otp": otp});
+      AppConstants.logWithColor(response.data.toString(), AppConstants.red);
+      return ApiResponse.withSuccess(response);
+    } catch (e) {
+      return ApiResponse.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+  @override
+  Future<ApiResponse> resetPasswordVerifyOtp(
+      String identity, String otp) async {
+    try {
+      Response response = await dioClient!.post(
+          AppConstants.resetPasswordVerifyOtpUri,
+          data: {"identity": identity, "otp": otp});
       AppConstants.logWithColor(response.data.toString(), AppConstants.red);
       return ApiResponse.withSuccess(response);
     } catch (e) {

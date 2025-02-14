@@ -68,12 +68,18 @@ class AppConstants {
       '/api/v3/seller/shipping/get-shipping-method';
   static const String thirdPartyDeliveryManAssign =
       '/api/v3/seller/orders/assign-third-party-delivery';
-  static const String forgotPasswordUri = '/api/v3/seller/auth/forgot-password';
+  static const String forgotPasswordUri =
+      '/api/v3/seller/auth/reset-password-request';
 
   static const String SendOtpUri = '/api/v3/seller/registration/get-phone-otp';
   static const String verifyOtpUri =
       '/api/v3/seller/registration/verify-phone-otp';
+  static const String resetPasswordVerifyOtpUri =
+      '/api/v3/seller/registration/verify-otp';
   static const String resetPasswordUri = '/api/v3/seller/auth/reset-password';
+  static const String resetPasswordRequestUri =
+      '/api/v3/seller/auth/reset-password-request';
+
   static const String paymentStatusUpdate =
       '/api/v3/seller/orders/update-payment-status';
   static const String barCodeGenerateUri =

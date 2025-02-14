@@ -17,36 +17,32 @@ class AuthService implements AuthServiceInterface {
   AuthService({required this.authRepoInterface});
 
   @override
-  Future clearSharedData() {
+  Future<bool> clearSharedData() {
     return authRepoInterface.clearSharedData();
   }
 
   @override
-  Future clearUserNumberAndPassword() {
+  Future<bool> clearUserNumberAndPassword() {
     return authRepoInterface.clearUserNumberAndPassword();
   }
 
   @override
-  Future forgotPassword(String identity) async {
-    ApiResponse apiResponse = await authRepoInterface.forgotPassword(identity);
-    if (apiResponse.response != null &&
-        apiResponse.response!.statusCode == 200) {
-      return ResponseModel(true, apiResponse.response!.data["message"]);
-    } else {
-      String? errorMessage;
-      if (apiResponse.error is String) {
-        if (kDebugMode) {
-          print(apiResponse.error.toString());
-        }
-        errorMessage = apiResponse.error.toString();
+  Future<ResponseModel> forgotPassword(String identity) async {
+    try {
+      ApiResponse apiResponse =
+          await authRepoInterface.forgotPassword(identity);
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        return ResponseModel(true, apiResponse.response!.data["message"]);
       } else {
-        ErrorResponse errorResponse = apiResponse.error;
-        if (kDebugMode) {
-          print(errorResponse.errors![0].message);
-        }
-        errorMessage = errorResponse.errors![0].message;
+        String errorMessage = apiResponse.error is String
+            ? apiResponse.error.toString()
+            : apiResponse.error?.errors?[0]?.message ?? 'something_went_wrong';
+        return ResponseModel(false, errorMessage);
       }
-      return ResponseModel(false, errorMessage);
+    } catch (e) {
+      log("Forgot Password Exception: $e");
+      return ResponseModel(false, e.toString());
     }
   }
 
@@ -71,7 +67,7 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
-  Future login({String? emailAddress, String? password}) async {
+  Future<ApiResponse> login({String? emailAddress, String? password}) async {
     ApiResponse apiResponse = await authRepoInterface.login(
         emailAddress: emailAddress, password: password);
     if (apiResponse.response != null &&
@@ -97,8 +93,12 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
-  Future registration(XFile? profileImage, XFile? shopLogo, XFile? shopBanner,
-      XFile? secondaryBanner, RegisterModel registerModel) async {
+  Future<ApiResponse> registration(
+      XFile? profileImage,
+      XFile? shopLogo,
+      XFile? shopBanner,
+      XFile? secondaryBanner,
+      RegisterModel registerModel) async {
     return authRepoInterface.registration(
         profileImage, shopLogo, shopBanner, secondaryBanner, registerModel);
   }
@@ -120,29 +120,66 @@ class AuthService implements AuthServiceInterface {
         if (apiResponse.error is String) {
           errorMessage = apiResponse.error.toString();
         } else if (apiResponse.response?.data != null) {
-          // Try to get error message from response data
           final data = apiResponse.response!.data;
           if (data is Map && data.containsKey('message')) {
             errorMessage = data['message'];
           } else if (data is Map && data.containsKey('errors')) {
             final errors = data['errors'];
             if (errors is Map) {
-              // Get first error message
-              errorMessage = errors.values.first[0] ?? errorMessage;
+              var firstError = errors.values.first;
+              if (firstError is List) {
+                errorMessage = firstError[0]?.toString() ?? errorMessage;
+              } else if (firstError is String) {
+                errorMessage = firstError;
+              }
             }
           }
         }
-
-        showCustomSnackBarWidget(
-          errorMessage,
-          Get.context!,
-          sanckBarType: SnackBarType.error,
-        );
 
         return ResponseModel(false, errorMessage);
       }
     } catch (e) {
       log("Reset Password Exception: $e");
+      return ResponseModel(false, e.toString());
+    }
+  }
+
+  @override
+  Future<ResponseModel> resetPasswordVerifyOtp(
+      String identity, String otp) async {
+    try {
+      ApiResponse apiResponse =
+          await authRepoInterface.resetPasswordVerifyOtp(identity, otp);
+
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        return ResponseModel(true, apiResponse.response!.data["message"]);
+      } else {
+        String errorMessage = 'Something went wrong';
+
+        if (apiResponse.error is String) {
+          errorMessage = apiResponse.error.toString();
+        } else if (apiResponse.response?.data != null) {
+          final data = apiResponse.response!.data;
+          if (data is Map && data.containsKey('message')) {
+            errorMessage = data['message'];
+          } else if (data is Map && data.containsKey('errors')) {
+            final errors = data['errors'];
+            if (errors is Map) {
+              var firstError = errors.values.first;
+              if (firstError is List) {
+                errorMessage = firstError[0]?.toString() ?? errorMessage;
+              } else if (firstError is String) {
+                errorMessage = firstError;
+              }
+            }
+          }
+        }
+
+        return ResponseModel(false, errorMessage);
+      }
+    } catch (e) {
+      log("Reset Password Verify OTP Exception: $e");
       return ResponseModel(false, e.toString());
     }
   }
@@ -158,23 +195,24 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
-  Future setLanguageCode(String languageCode) {
+  Future<ApiResponse> setLanguageCode(String languageCode) {
     return authRepoInterface.setLanguageCode(languageCode);
   }
 
   @override
-  Future updateToken() async {
+  Future<ApiResponse> updateToken() async {
     ApiResponse apiResponse = await authRepoInterface.updateToken();
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       return apiResponse;
     } else {
       // ApiChecker.checkApi(apiResponse);
+      return apiResponse;
     }
   }
 
   @override
-  Future verifyOtp(String identity, String otp) async {
+  Future<ResponseModel> verifyOtp(String identity, String otp) async {
     ApiResponse apiResponse = await authRepoInterface.verifyOtp(identity, otp);
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
@@ -198,8 +236,8 @@ class AuthService implements AuthServiceInterface {
   }
 
   @override
-  Future SendOtp(String identity) async {
-    ApiResponse apiResponse = await authRepoInterface.SendOtp(identity);
+  Future<ResponseModel> sendOtp(String identity) async {
+    ApiResponse apiResponse = await authRepoInterface.sendOtp(identity);
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       log(apiResponse.response.toString());

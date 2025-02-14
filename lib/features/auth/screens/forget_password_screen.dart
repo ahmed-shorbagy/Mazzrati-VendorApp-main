@@ -127,7 +127,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ? CustomButtonWidget(
                         borderRadius: 10,
                         btnTxt: getTranslated('send_otp', context),
-                        onTap: () {
+                        onTap: () async {
                           String phone = _numberController.text.trim();
                           if (phone.isEmpty) {
                             showCustomSnackBarWidget(
@@ -146,25 +146,39 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           } else {
                             // Format phone number with country code
                             String formattedPhone = '+966$phone';
-                            authProvider.sendOtp(formattedPhone).then((value) {
-                              if (authProvider.isOTPSent) {
-                                showCustomSnackBarWidget(
-                                  getTranslated(
-                                      'otp_sent_successfully', context),
-                                  context,
-                                  sanckBarType: SnackBarType.success,
-                                );
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => VerificationScreen(
-                                      formattedPhone,
-                                      fromForgetPassword: true,
-                                    ),
+
+                            // First call forgotPassword
+                            final response = await authProvider
+                                .forgotPassword(formattedPhone);
+
+                            if (response.isSuccess) {
+                              if (!mounted) return;
+
+                              showCustomSnackBarWidget(
+                                getTranslated('otp_sent_successfully', context),
+                                context,
+                                sanckBarType: SnackBarType.success,
+                              );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => VerificationScreen(
+                                    formattedPhone,
+                                    fromForgetPassword: true,
                                   ),
-                                );
-                              }
-                            });
+                                ),
+                              );
+                            } else {
+                              if (!mounted) return;
+                              showCustomSnackBarWidget(
+                                getTranslated(
+                                    response.message ?? 'something_went_wrong',
+                                    context),
+                                context,
+                                sanckBarType: SnackBarType.error,
+                              );
+                            }
                           }
                         },
                       )

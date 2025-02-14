@@ -951,5 +951,6 @@
   "select_category": "Select Category",
   "otp_sent_successfully": "Verification code sent successfully",
   "enter_new_password": "Enter new password",
-  "verify_code_first": "Please verify the code first"
+  "verify_code_first": "Please verify the code first",
+  "otp_verified_successfully": "OTP verified successfully"
 }

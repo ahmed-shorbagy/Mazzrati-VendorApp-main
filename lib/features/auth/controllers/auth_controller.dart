@@ -324,7 +324,7 @@ class AuthController with ChangeNotifier {
     _isPhoneNumberVerificationButtonLoading = true;
     _verificationMsg = '';
     notifyListeners();
-    ResponseModel responseModel = await authServiceInterface.SendOtp(phone);
+    ResponseModel responseModel = await authServiceInterface.sendOtp(phone);
     showCustomSnackBarWidget(responseModel.message, Get.context!,
         isError: false, sanckBarType: SnackBarType.success);
     log(responseModel.message!);
@@ -364,6 +364,34 @@ class AuthController with ChangeNotifier {
     _verificationMsg = responseModel.message;
     notifyListeners();
     return responseModel;
+  }
+
+  Future<ResponseModel> resetPasswordVerifyOtp(
+      String identity, String otp) async {
+    _isPhoneNumberVerificationButtonLoading = true;
+    _verificationMsg = '';
+    notifyListeners();
+
+    try {
+      // Format phone number if needed
+      String formattedPhone = identity.startsWith('+966')
+          ? identity
+          : identity.startsWith('966')
+              ? '+$identity'
+              : '+966$identity';
+
+      ResponseModel responseModel = await authServiceInterface
+          .resetPasswordVerifyOtp(formattedPhone, otp);
+
+      _isPhoneNumberVerificationButtonLoading = false;
+      _verificationMsg = responseModel.message;
+      notifyListeners();
+      return responseModel;
+    } catch (e) {
+      _isPhoneNumberVerificationButtonLoading = false;
+      notifyListeners();
+      return ResponseModel(false, e.toString());
+    }
   }
 
   void pickImage(bool isProfile, bool shopLogo, bool isRemove,
