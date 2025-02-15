@@ -60,16 +60,25 @@ class AuthRepository implements AuthRepositoryInterface {
   Future<ApiResponse> resetPassword(String identity, String otp,
       String password, String confirmPassword) async {
     try {
-      Response response =
-          await dioClient!.post(AppConstants.resetPasswordUri, data: {
-        "identity": identity.trim(),
-        "otp": otp,
-        "password": password,
-        "confirm_password": confirmPassword
-      });
+      log("Sending data: identity=$identity, otp=$otp, password=$password");
+
+      Response response = await dioClient!.put(
+        AppConstants.resetPasswordUri,
+        data: {
+          "identity": identity,
+          "otp": int.tryParse(otp) ?? otp,
+          "password": password,
+          "confirm_password": confirmPassword
+        },
+        options: Options(
+          headers: {"Content-Type": "application/json"},
+        ),
+      );
+
+      log("Response Data: ${response.data}");
       return ApiResponse.withSuccess(response);
     } catch (e) {
-      log(e.toString());
+      log("Error: ${e.toString()}");
       return ApiResponse.withError(ApiErrorHandler.getMessage(e));
     }
   }
@@ -104,9 +113,16 @@ class AuthRepository implements AuthRepositoryInterface {
       Response response = await dioClient!.post(
           AppConstants.resetPasswordVerifyOtpUri,
           data: {"identity": identity, "otp": otp});
+      log("${response.headers} ${response.data}");
+      log("Request URL: ${AppConstants.resetPasswordVerifyOtpUri}");
+      log("Request Headers: ${dioClient!.dio!.options.headers}");
+      log("Request Data: {'identity': $identity, 'otp': $otp}");
+      log(response.data.toString());
       AppConstants.logWithColor(response.data.toString(), AppConstants.red);
+
       return ApiResponse.withSuccess(response);
     } catch (e) {
+      log(e.toString());
       return ApiResponse.withError(ApiErrorHandler.getMessage(e));
     }
   }

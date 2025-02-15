@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
@@ -65,9 +67,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       textDirection: TextDirection.ltr,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: List.generate(6, (index) {
+                        children: List.generate(4, (index) {
                           return SizedBox(
-                            width: 40,
+                            width: 50,
                             height: 50,
                             child: TextField(
                               controller: authProvider.controllers[index],
@@ -142,19 +144,30 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           ),
                           onTap: () async {
                             String otp = authProvider.controllers
+                                .take(4) // Take only first 4 controllers
                                 .map((controller) => controller.text)
                                 .join();
-                            if (otp.length != 6) {
+                            if (otp.length != 4) {
                               showCustomSnackBarWidget(
                                 getTranslated('input_valid_otp', context),
                                 context,
                                 sanckBarType: SnackBarType.error,
                               );
                             } else if (!isOtpVerified) {
+                              // Remove country code if present
+                              String phoneWithoutCode = widget.phoneNumber;
+                              if (phoneWithoutCode.startsWith('+966')) {
+                                phoneWithoutCode =
+                                    phoneWithoutCode.substring(4);
+                              } else if (phoneWithoutCode.startsWith('966')) {
+                                phoneWithoutCode =
+                                    phoneWithoutCode.substring(3);
+                              }
+                              log(phoneWithoutCode);
                               // First verify OTP using resetPasswordVerifyOtp
                               final response =
                                   await authProvider.resetPasswordVerifyOtp(
-                                      widget.phoneNumber, otp);
+                                      phoneWithoutCode, otp);
 
                               if (response.isSuccess) {
                                 setState(() {
@@ -209,6 +222,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   sanckBarType: SnackBarType.warning,
                                 );
                               } else {
+                                log(widget.phoneNumber);
+                                log(otp);
+                                log(newPasswordController.text);
+                                log(confirmPasswordController.text);
                                 try {
                                   ResponseModel response =
                                       await authProvider.resetPassword(
@@ -219,11 +236,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   );
 
                                   if (response.isSuccess) {
-                                    Navigator.of(context)
-                                        .pushNamedAndRemoveUntil(
-                                      '/login',
-                                      (route) => false,
-                                    );
+                                    if (!mounted) return;
+
+                                    // First show success message
                                     showCustomSnackBarWidget(
                                       getTranslated(
                                           'password_reset_successfully',
@@ -231,7 +246,18 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                       context,
                                       sanckBarType: SnackBarType.success,
                                     );
+
+                                    // Then navigate to login screen
+                                    Future.delayed(
+                                        const Duration(milliseconds: 500), () {
+                                      Navigator.of(context)
+                                          .pushNamedAndRemoveUntil(
+                                        '/login',
+                                        (route) => false,
+                                      );
+                                    });
                                   } else {
+                                    if (!mounted) return;
                                     showCustomSnackBarWidget(
                                       getTranslated(
                                           response.message ??
@@ -242,6 +268,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                     );
                                   }
                                 } catch (e) {
+                                  if (!mounted) return;
                                   showCustomSnackBarWidget(
                                     getTranslated(
                                         'something_went_wrong', context),

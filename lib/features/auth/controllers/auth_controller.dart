@@ -341,24 +341,8 @@ class AuthController with ChangeNotifier {
     _verificationMsg = '';
     notifyListeners();
 
-    // Format phone number if needed
-    String formattedPhone = identity.startsWith('+966')
-        ? identity
-        : identity.startsWith('966')
-            ? '+$identity'
-            : '+966$identity';
-
-    // Create request body
-    Map<String, dynamic> body = {
-      "identity": formattedPhone,
-      "otp": otp,
-      "password": password,
-      "confirm_password": confirmPassword,
-      "_method": "put"
-    };
-
     ResponseModel responseModel = await authServiceInterface.resetPassword(
-        formattedPhone, otp, password, confirmPassword);
+        identity, otp, password, confirmPassword);
 
     _isPhoneNumberVerificationButtonLoading = false;
     _verificationMsg = responseModel.message;
@@ -373,15 +357,8 @@ class AuthController with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Format phone number if needed
-      String formattedPhone = identity.startsWith('+966')
-          ? identity
-          : identity.startsWith('966')
-              ? '+$identity'
-              : '+966$identity';
-
-      ResponseModel responseModel = await authServiceInterface
-          .resetPasswordVerifyOtp(formattedPhone, otp);
+      ResponseModel responseModel =
+          await authServiceInterface.resetPasswordVerifyOtp(identity, otp);
 
       _isPhoneNumberVerificationButtonLoading = false;
       _verificationMsg = responseModel.message;
@@ -605,9 +582,9 @@ class AuthController with ChangeNotifier {
         password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]')));
   }
 
-  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
   final List<TextEditingController> _controllers =
-      List.generate(6, (index) => TextEditingController());
+      List.generate(4, (index) => TextEditingController());
   List<TextEditingController> get controllers => _controllers;
   List<FocusNode> get focusNodes => _focusNodes;
 

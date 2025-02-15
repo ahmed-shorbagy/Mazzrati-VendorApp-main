@@ -75,7 +75,7 @@ class AppConstants {
   static const String verifyOtpUri =
       '/api/v3/seller/registration/verify-phone-otp';
   static const String resetPasswordVerifyOtpUri =
-      '/api/v3/seller/registration/verify-otp';
+      '/api/v3/seller/auth/verify-otp';
   static const String resetPasswordUri = '/api/v3/seller/auth/reset-password';
   static const String resetPasswordRequestUri =
       '/api/v3/seller/auth/reset-password-request';

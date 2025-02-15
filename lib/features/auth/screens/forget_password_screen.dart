@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
@@ -145,11 +147,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             );
                           } else {
                             // Format phone number with country code
-                            String formattedPhone = '+966$phone';
 
+                            log(phone);
                             // First call forgotPassword
-                            final response = await authProvider
-                                .forgotPassword(formattedPhone);
+                            final response =
+                                await authProvider.forgotPassword(phone);
 
                             if (response.isSuccess) {
                               if (!mounted) return;
@@ -164,7 +166,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => VerificationScreen(
-                                    formattedPhone,
+                                    phone,
                                     fromForgetPassword: true,
                                   ),
                                 ),
