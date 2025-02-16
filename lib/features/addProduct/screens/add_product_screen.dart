@@ -1,26 +1,27 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/edt_product_model.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_next_screen.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_section_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/widgets/digital_product_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/widgets/select_category_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/widgets/title_and_description_widget.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_next_screen.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/digital_product_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/select_category_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/widgets/title_and_description_widget.dart';
-import 'package:html/parser.dart' as html_parser;
+import 'package:provider/provider.dart';
 
 class AddProductScreen extends StatefulWidget {
   final Product? product;
@@ -380,7 +381,8 @@ class AddProductScreenState extends State<AddProductScreen>
                                                 height: Dimensions
                                                     .paddingSizeSmall),
                                           ],
-                                          resProvider.productTypeIndex == 0
+                                          resProvider.productTypeIndex == 0 &&
+                                                  resProvider.categoryIndex != 0
                                               ? Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(
@@ -461,20 +463,21 @@ class AddProductScreenState extends State<AddProductScreen>
                                                                           .getTextColor(
                                                                               context)),
                                                                 ),
-                                                          items: Provider.of<
-                                                                      SplashController>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .configModel!
-                                                              .unit!
-                                                              .map((String
-                                                                  value) {
-                                                            return DropdownMenuItem<
-                                                                    String>(
-                                                                value: value,
-                                                                child: Text(
-                                                                    value));
-                                                          }).toList(),
+                                                          items: resProvider
+                                                                      .categoryUnits !=
+                                                                  null
+                                                              ? resProvider
+                                                                  .categoryUnits!
+                                                                  .map((String
+                                                                      value) {
+                                                                  return DropdownMenuItem<
+                                                                          String>(
+                                                                      value:
+                                                                          value,
+                                                                      child: Text(
+                                                                          value));
+                                                                }).toList()
+                                                              : [],
                                                           onChanged: (val) {
                                                             unitValue = val;
                                                             setState(

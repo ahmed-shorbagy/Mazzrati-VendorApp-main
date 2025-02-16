@@ -90,6 +90,7 @@ class Product {
   MetaSeoInfo? metaSeoInfo;
   List<DigitalVariation>? digitalVariation;
   ImageFullUrl? metaImageFullUrl;
+  String? shippingType;
 
   Product(
       {this.id,
@@ -145,7 +146,8 @@ class Product {
       String? deniedNote,
       List<Tags>? tags,
       this.metaSeoInfo,
-      this.digitalVariation}) {
+      this.digitalVariation,
+      this.shippingType = 'non_refrigerated'}) {
     if (digitalProductType != null) {
       this.digitalProductType = digitalProductType;
     }
@@ -326,6 +328,8 @@ class Product {
     } else {
       digitalVariation = [];
     }
+
+    shippingType = json['shipping_type'] ?? 'non_refrigerated';
   }
 
   Map<String, dynamic> toJson() {
@@ -391,6 +395,7 @@ class Product {
     if (metaSeoInfo != null) {
       data['seo_info'] = metaSeoInfo!.toJson();
     }
+    data['shipping_type'] = shippingType;
     return data;
   }
 }

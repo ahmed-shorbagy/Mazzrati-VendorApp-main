@@ -1,13 +1,14 @@
 import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/category_widget.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
+import 'package:provider/provider.dart';
 
 class SelectCategoryWidget extends StatefulWidget {
   final Product? product;
@@ -140,18 +141,12 @@ class SelectCategoryWidgetState extends State<SelectCategoryWidget> {
                           setState(() {
                             _selectedCategoryIndex = index;
                           });
-                          resProvider.setCategoryIndex(index + 1, true);
-                          log(resProvider
-                              .categoryList![resProvider.categoryIndex!].name!);
-                          log(widget.product!.toJson().toString());
-
-                          // resProvider.getSubCategoryList(
-                          //     context,
-                          //     index != 0
-                          //         ? resProvider.categorySelectedIndex
-                          //         : 0,
-                          //     true,
-                          //     widget.product);
+                          // Ensure we don't exceed the list bounds
+                          if (index < resProvider.categoryList!.length) {
+                            resProvider.setCategoryIndex(index + 1, true);
+                            log('Selected category: ${resProvider.categoryList![index].name!}');
+                            log('Product details: ${widget.product?.toJson().toString() ?? 'No product'}');
+                          }
                         },
                         child: CategoryWidget(
                           category: category,

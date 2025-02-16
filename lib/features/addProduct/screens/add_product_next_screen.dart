@@ -1,30 +1,32 @@
 // ignore_for_file: unused_field
 
+import 'dart:io';
+
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/attribute_view_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/attribute_model.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/domain/models/variant_type_model.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_seo_screen.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/add_product_section_widget.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/widgets/digital_product_widget.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/domain/models/variant_type_model.dart';
-import 'package:mazzraati_vendor_app/helper/price_converter.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/helper/price_converter.dart';
+import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_seo_screen.dart';
+import 'package:provider/provider.dart';
 
 import '../../auth/controllers/auth_controller.dart';
 
@@ -1080,9 +1082,141 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
+                                            // Add Thumbnail Image Upload
+                                            Text(
+                                              getTranslated(
+                                                  'thumbnail_image', context)!,
+                                              style: robotoRegular.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeDefault,
+                                                color:
+                                                    ColorResources.titleColor(
+                                                        context),
+                                              ),
+                                            ),
                                             const SizedBox(
                                                 height: Dimensions
                                                     .paddingSizeSmall),
+                                            InkWell(
+                                              onTap: () {
+                                                resProvider.pickImage(
+                                                    true, false, false, null);
+                                              },
+                                              child: Container(
+                                                width: double.infinity,
+                                                height: 120,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    width: 1,
+                                                    color: Theme.of(context)
+                                                        .primaryColor
+                                                        .withOpacity(.15),
+                                                  ),
+                                                  borderRadius: BorderRadius
+                                                      .circular(Dimensions
+                                                          .paddingSizeExtraSmall),
+                                                ),
+                                                child:
+                                                    resProvider.pickedLogo !=
+                                                            null
+                                                        ? Image.file(
+                                                            File(resProvider
+                                                                .pickedLogo!
+                                                                .path),
+                                                            fit: BoxFit.cover)
+                                                        : Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              Icon(
+                                                                  Icons
+                                                                      .add_photo_alternate_outlined,
+                                                                  size: 40,
+                                                                  color: Theme.of(
+                                                                          context)
+                                                                      .hintColor),
+                                                              Text(
+                                                                  getTranslated(
+                                                                          'add_thumbnail',
+                                                                          context) ??
+                                                                      "",
+                                                                  style: robotoRegular
+                                                                      .copyWith(
+                                                                          color:
+                                                                              Theme.of(context).hintColor)),
+                                                            ],
+                                                          ),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeLarge),
+
+                                            // Add Shipping Type Selection
+                                            Text(
+                                              getTranslated(
+                                                  'shipping_type', context)!,
+                                              style: robotoRegular.copyWith(
+                                                  fontSize: Dimensions
+                                                      .fontSizeDefault,
+                                                  color:
+                                                      ColorResources.titleColor(
+                                                          context)),
+                                            ),
+                                            const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeSmall),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: Dimensions
+                                                          .paddingSizeSmall),
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    Theme.of(context).cardColor,
+                                                border: Border.all(
+                                                    width: .7,
+                                                    color: Theme.of(context)
+                                                        .hintColor
+                                                        .withOpacity(.3)),
+                                                borderRadius: BorderRadius
+                                                    .circular(Dimensions
+                                                        .paddingSizeExtraSmall),
+                                              ),
+                                              child: DropdownButton<String>(
+                                                value: resProvider.shippingType,
+                                                items: <String>[
+                                                  'refrigerated',
+                                                  'non_refrigerated'
+                                                ].map((String value) {
+                                                  return DropdownMenuItem<
+                                                      String>(
+                                                    value: value,
+                                                    child: Text(
+                                                        getTranslated(
+                                                                value, context) ??
+                                                            "",
+                                                        style: robotoRegular.copyWith(
+                                                            fontSize: Dimensions
+                                                                .fontSizeDefault)),
+                                                  );
+                                                }).toList(),
+                                                onChanged: (value) {
+                                                  if (value != null) {
+                                                    resProvider
+                                                        .setShippingType(value);
+                                                  }
+                                                },
+                                                isExpanded: true,
+                                                underline: const SizedBox(),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                                height: Dimensions
+                                                    .paddingSizeLarge),
+
+                                            // Original Price Section
                                             Text(
                                               getTranslated(
                                                   'unit_price', context)!,
@@ -1104,127 +1238,13 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
                                                       listen: false)
                                                   .unitPriceController,
                                               focusNode: _unitPriceNode,
+                                              nextNode: _discountNode,
                                               textInputAction:
-                                                  TextInputAction.done,
+                                                  TextInputAction.next,
                                               textInputType:
                                                   TextInputType.number,
                                               isAmount: true,
-                                              hintText: 'Ex: \$129',
                                             ),
-                                            const SizedBox(
-                                                height: Dimensions
-                                                    .paddingSizeSmall),
-
-                                            // ToDo : Tax   النموزج الضريبي
-                                            // Row(children: [
-                                            //   Expanded(
-                                            //       child: Column(
-                                            //           crossAxisAlignment:
-                                            //               CrossAxisAlignment
-                                            //                   .start,
-                                            //           children: [
-                                            //         Text(
-                                            //           getTranslated('tax_model',
-                                            //               context)!,
-                                            //           style: robotoRegular.copyWith(
-                                            //               fontSize: Dimensions
-                                            //                   .fontSizeDefault,
-                                            //               color: ColorResources
-                                            //                   .titleColor(
-                                            //                       context)),
-                                            //         ),
-                                            //         const SizedBox(
-                                            //             height: Dimensions
-                                            //                 .paddingSizeSmall),
-                                            //         Container(
-                                            //           padding: const EdgeInsets
-                                            //               .symmetric(
-                                            //               horizontal: Dimensions
-                                            //                   .paddingSizeSmall),
-                                            //           decoration: BoxDecoration(
-                                            //             color: Theme.of(context)
-                                            //                 .cardColor,
-                                            //             border: Border.all(
-                                            //                 width: .7,
-                                            //                 color: Theme.of(
-                                            //                         context)
-                                            //                     .hintColor
-                                            //                     .withOpacity(
-                                            //                         .3)),
-                                            //             borderRadius: BorderRadius
-                                            //                 .circular(Dimensions
-                                            //                     .paddingSizeExtraSmall),
-                                            //           ),
-                                            //           child: DropdownButton<
-                                            //               String>(
-                                            //             value: resProvider
-                                            //                         .taxTypeIndex ==
-                                            //                     0
-                                            //                 ? 'include'
-                                            //                 : 'exclude',
-                                            //             items: <String>[
-                                            //               'include',
-                                            //               'exclude'
-                                            //             ].map((String value) {
-                                            //               return DropdownMenuItem<
-                                            //                   String>(
-                                            //                 value: value,
-                                            //                 child: Text(
-                                            //                     getTranslated(
-                                            //                         value,
-                                            //                         context)!),
-                                            //               );
-                                            //             }).toList(),
-                                            //             onChanged: (value) {
-                                            //               resProvider
-                                            //                   .setTaxTypeIndex(
-                                            //                       value ==
-                                            //                               'include'
-                                            //                           ? 0
-                                            //                           : 1,
-                                            //                       true);
-                                            //             },
-                                            //             isExpanded: true,
-                                            //             underline:
-                                            //                 const SizedBox(),
-                                            //           ),
-                                            //         ),
-                                            //       ])),
-                                            //   const SizedBox(
-                                            //       width: Dimensions
-                                            //           .paddingSizeSmall),
-                                            //   Expanded(
-                                            //       child: Column(
-                                            //     crossAxisAlignment:
-                                            //         CrossAxisAlignment.start,
-                                            //     children: [
-                                            //       Text(
-                                            //           getTranslated('tax_p',
-                                            //               context)!,
-                                            //           style: robotoRegular.copyWith(
-                                            //               fontSize: Dimensions
-                                            //                   .fontSizeDefault,
-                                            //               color: ColorResources
-                                            //                   .titleColor(
-                                            //                       context))),
-                                            //       const SizedBox(
-                                            //           height: Dimensions
-                                            //               .paddingSizeSmall),
-                                            //       CustomTextFieldWidget(
-                                            //         border: true,
-                                            //         controller: _taxController,
-                                            //         focusNode: _taxNode,
-                                            //         nextNode: _discountNode,
-                                            //         isAmount: true,
-                                            //         textInputAction:
-                                            //             TextInputAction.next,
-                                            //         textInputType:
-                                            //             TextInputType.number,
-                                            //         hintText: 'Ex: \$10',
-                                            //       ),
-                                            //     ],
-                                            //   )),
-                                            // ]),
                                             const SizedBox(
                                                 height: Dimensions
                                                     .paddingSizeLarge),
@@ -1450,108 +1470,141 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
                                   ),
 
                                   //__________Shipping__________
-                                  resProvider.productTypeIndex == 0
-                                      ? AddProductSectionWidget(
-                                          title: getTranslated(
-                                              'shipping', context)!,
-                                          childrens: [
-                                            resProvider.productTypeIndex == 0
-                                                ? Padding(
+                                  if (resProvider.productTypeIndex == 0) ...[
+                                    AddProductSectionWidget(
+                                      title:
+                                          getTranslated('shipping', context)!,
+                                      childrens: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal:
+                                                Dimensions.paddingSizeDefault,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              const SizedBox(
+                                                  height: Dimensions
+                                                      .paddingSizeSmall),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    getTranslated(
+                                                        'shipping_type',
+                                                        context)!,
+                                                    style:
+                                                        robotoRegular.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeDefault,
+                                                      color: ColorResources
+                                                          .titleColor(context),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                      height: Dimensions
+                                                          .paddingSizeSmall),
+                                                  Container(
                                                     padding: const EdgeInsets
                                                         .symmetric(
-                                                        horizontal: Dimensions
-                                                            .paddingSizeDefault),
-                                                    child: Column(
-                                                      children: [
-                                                        const SizedBox(
-                                                            height: Dimensions
-                                                                .paddingSizeSmall),
-
-                                                        Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              getTranslated(
-                                                                  'shipping_cost',
-                                                                  context)!,
-                                                              style: robotoRegular.copyWith(
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeDefault,
-                                                                  color: ColorResources
-                                                                      .titleColor(
-                                                                          context)),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: Dimensions
-                                                                    .paddingSizeSmall),
-                                                            CustomTextFieldWidget(
-                                                              border: true,
-                                                              controller: Provider.of<
-                                                                          AddProductController>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  .shippingCostController,
-                                                              focusNode:
-                                                                  _shippingCostNode,
-                                                              nextNode:
-                                                                  _totalQuantityNode,
-                                                              textInputAction:
-                                                                  TextInputAction
-                                                                      .next,
-                                                              textInputType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              isAmount: true,
-                                                              // isAmount: true,
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        const SizedBox(
-                                                          height: Dimensions
-                                                              .paddingSizeDefault,
-                                                        ),
-
-                                                        // Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                                                        //   Expanded(
-                                                        //     child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                                                        //       mainAxisAlignment: MainAxisAlignment.start,
-                                                        //       children: [
-                                                        //         Text(getTranslated('shipping_cost_multiply', context)!,
-                                                        //           style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: ColorResources.titleColor(context)
-                                                        //           ),
-                                                        //         ),
-                                                        //         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                                                        //         Text(getTranslated('shipping_cost_multiply_by_item', context)!,
-                                                        //           style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall,
-                                                        //               color: ColorResources.titleColor(context)
-                                                        //           ),
-                                                        //         ),
-                                                        //       ],
-                                                        //     ),
-                                                        //   ),
-                                                        //   const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                                                        //   FlutterSwitch(width: 60.0, height: 30.0, toggleSize: 30.0,
-                                                        //     value: resProvider.isMultiply,
-                                                        //     borderRadius: 20.0,
-                                                        //     activeColor: Theme.of(context).primaryColor,
-                                                        //     padding: 1.0,
-                                                        //     onToggle:(bool isActive) =>resProvider.toggleMultiply(context),
-                                                        //   ),
-                                                        // ]),
-                                                        // const SizedBox(height: Dimensions.iconSizeLarge),
-                                                      ],
+                                                        horizontal: 10),
+                                                    decoration: BoxDecoration(
+                                                      color: Theme.of(context)
+                                                          .cardColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              6),
+                                                      border: Border.all(
+                                                        color: Theme.of(context)
+                                                            .hintColor
+                                                            .withOpacity(.25),
+                                                      ),
                                                     ),
-                                                  )
-                                                : const SizedBox(),
-                                          ],
-                                        )
-                                      : const SizedBox(),
+                                                    child:
+                                                        DropdownButton<String>(
+                                                      value: resProvider
+                                                          .shippingType,
+                                                      isExpanded: true,
+                                                      underline:
+                                                          const SizedBox(),
+                                                      onChanged:
+                                                          (String? newValue) {
+                                                        if (newValue != null) {
+                                                          resProvider
+                                                              .setShippingType(
+                                                                  newValue);
+                                                        }
+                                                      },
+                                                      items: <String>[
+                                                        'non_refrigerated',
+                                                        'refrigerated'
+                                                      ].map<
+                                                              DropdownMenuItem<
+                                                                  String>>(
+                                                          (String value) {
+                                                        return DropdownMenuItem<
+                                                            String>(
+                                                          value: value,
+                                                          child: Text(
+                                                              getTranslated(
+                                                                      value,
+                                                                      context) ??
+                                                                  ""),
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                  height: Dimensions
+                                                      .paddingSizeDefault),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    getTranslated(
+                                                        'shipping_cost',
+                                                        context)!,
+                                                    style:
+                                                        robotoRegular.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeDefault,
+                                                      color: ColorResources
+                                                          .titleColor(context),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                      height: Dimensions
+                                                          .paddingSizeSmall),
+                                                  CustomTextFieldWidget(
+                                                    border: true,
+                                                    controller: Provider.of<
+                                                        AddProductController>(
+                                                      context,
+                                                      listen: false,
+                                                    ).shippingCostController,
+                                                    focusNode:
+                                                        _shippingCostNode,
+                                                    nextNode:
+                                                        _totalQuantityNode,
+                                                    textInputAction:
+                                                        TextInputAction.next,
+                                                    textInputType:
+                                                        TextInputType.number,
+                                                    isAmount: true,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ] else ...[
+                                    const SizedBox(),
+                                  ],
                                 ])
                           : const Padding(
                               padding: EdgeInsets.only(top: 300.0),

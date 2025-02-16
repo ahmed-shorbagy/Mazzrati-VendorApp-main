@@ -4,36 +4,38 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
 import 'package:mazzraati_vendor_app/data/model/image_full_url.dart';
+import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/attr.dart';
-import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/attribute_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/brand_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/category_model.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/domain/models/edt_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/file_upload_model.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/domain/models/image_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/product_image_model.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/domain/models/variant_type_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/services/add_product_service_interface.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/domain/models/config_model.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/domain/models/edt_product_model.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/domain/models/image_model.dart';
+import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
+import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/domain/models/variant_type_model.dart';
+import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/features/splash/domain/models/config_model.dart';
 import 'package:mazzraati_vendor_app/helper/api_checker.dart';
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';
+import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
-import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
-import 'package:html/parser.dart' as html_parser;
+import 'package:provider/provider.dart';
 
 class AddProductController extends ChangeNotifier {
   final AddProductServiceInterface shopServiceInterface;
@@ -159,6 +161,17 @@ class AddProductController extends ChangeNotifier {
 
   List<String> pages = ['general_info', 'variation_setup', 'product_seo'];
   List<String> imagePreviewType = ['large', 'medium', 'small'];
+
+  String _shippingType = 'non_refrigerated';
+  String get shippingType => _shippingType;
+
+  List<String>? _categoryUnits;
+  List<String>? get categoryUnits => _categoryUnits;
+
+  void setShippingType(String type) {
+    _shippingType = type;
+    notifyListeners();
+  }
 
   void setTitle(int index, String title) {
     _titleControllerList[index].text = title;
@@ -495,8 +508,18 @@ class AddProductController extends ChangeNotifier {
     _subCategoryIndex = 0;
     if (categoryIndex != 0) {
       _subCategoryList = [];
-      _subCategoryList!
-          .addAll(_categoryList![categoryIndex! - 1].subCategories!);
+      _subCategoryList!.addAll(_categoryList![categoryIndex! - 1]
+          .subCategories!
+          .map((category) => SubCategory(
+                id: category.id,
+                name: category.name,
+                slug: category.slug,
+                icon: category.icon,
+                parentId: category.parentId,
+                position: category.position,
+                createdAt: category.createdAt,
+                updatedAt: category.updatedAt,
+              )));
     }
     if (notify) {
       _subCategoryIds = [];
@@ -768,9 +791,141 @@ class AddProductController extends ChangeNotifier {
     }
   }
 
-  void setCategoryIndex(int? index, bool notify) {
+  void setCategoryIndex(int? index, bool notify, {Product? product}) async {
     _categoryIndex = index;
     if (notify) {
+      _subCategoryIndex = 0;
+      _subSubCategoryIndex = 0;
+      _categoryUnits = [];
+
+      if (_categoryIndex != 0) {
+        // Get the selected category ID
+        int categoryId = _categoryList![_categoryIndex! - 1].id!;
+
+        // Get the current language
+        String languageCode = Provider.of<LocalizationController>(Get.context!,
+                        listen: false)
+                    .locale
+                    .countryCode ==
+                'US'
+            ? 'en'
+            : Provider.of<LocalizationController>(Get.context!, listen: false)
+                .locale
+                .countryCode!
+                .toLowerCase();
+
+        // Define units based on language
+        Map<String, String> unitTranslations = {
+          'kg': languageCode == 'sa' ? 'كيلوجرام' : 'kg',
+          'box': languageCode == 'sa' ? 'صندوق' : 'box',
+          'ton': languageCode == 'sa' ? 'طن' : 'ton',
+          'piece': languageCode == 'sa' ? 'قطعة' : 'piece',
+          'seedling': languageCode == 'sa' ? 'شتلة' : 'seedling',
+          'tray': languageCode == 'sa' ? 'صينية' : 'tray',
+          'bag': languageCode == 'sa' ? 'كيس' : 'bag',
+          'liter': languageCode == 'sa' ? 'لتر' : 'liter',
+          'bundle': languageCode == 'sa' ? 'حزمة' : 'bundle',
+          'single': languageCode == 'sa' ? 'حبة' : 'piece',
+          'gram': languageCode == 'sa' ? 'جرام' : 'gram',
+          'jar': languageCode == 'sa' ? 'عبوة' : 'jar',
+          'gallon': languageCode == 'sa' ? 'جالون' : 'gallon',
+          'bottle': languageCode == 'sa' ? 'عبوة' : 'bottle',
+          'pack': languageCode == 'sa' ? 'عبوة' : 'pack'
+        };
+
+        // Set units based on category
+        switch (categoryId) {
+          case 21: // تمور (Dates)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['box']!,
+              unitTranslations['ton']!
+            ];
+            break;
+
+          case 22: // شتلات (Seedlings)
+            _categoryUnits = [
+              unitTranslations['piece']!,
+              unitTranslations['seedling']!,
+              unitTranslations['tray']!
+            ];
+            break;
+
+          case 23: // حبوب (Grains)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['ton']!,
+              unitTranslations['bag']!
+            ];
+            break;
+
+          case 24: // أسمدة وأعلاف (Fertilizers and Feeds)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['liter']!,
+              unitTranslations['bag']!,
+              unitTranslations['ton']!
+            ];
+            break;
+
+          case 25: // خضار (Vegetables)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['box']!,
+              unitTranslations['bundle']!
+            ];
+            break;
+
+          case 26: // فواكه (Fruits)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['box']!,
+              unitTranslations['single']!
+            ];
+            break;
+
+          case 27: // عسل (Honey)
+            _categoryUnits = [
+              unitTranslations['gram']!,
+              unitTranslations['kg']!,
+              unitTranslations['liter']!,
+              unitTranslations['jar']!
+            ];
+            break;
+
+          case 28: // لحوم وأسماك (Meats and Fish)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['box']!,
+              unitTranslations['piece']!
+            ];
+            break;
+
+          case 29: // زيوت (Oils)
+            _categoryUnits = [
+              unitTranslations['liter']!,
+              unitTranslations['gallon']!,
+              unitTranslations['bottle']!
+            ];
+            break;
+
+          case 30: // منتجات عضوية (Organic Products)
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['box']!,
+              unitTranslations['pack']!
+            ];
+            break;
+
+          default: // Other categories
+            _categoryUnits = [
+              unitTranslations['kg']!,
+              unitTranslations['piece']!,
+              unitTranslations['box']!,
+              unitTranslations['liter']!
+            ];
+        }
+      }
       notifyListeners();
     }
   }
@@ -935,6 +1090,10 @@ class AddProductController extends ChangeNotifier {
 
     setMetaSeoData(product);
 
+    fields.addAll(<String, dynamic>{
+      'shipping_type': _shippingType,
+    });
+
     ApiResponse response = await shopServiceInterface.addProduct(
         product,
         addProduct,
@@ -1004,77 +1163,9 @@ class AddProductController extends ChangeNotifier {
   }
 
   void generateVariantTypes(BuildContext context, Product? product) {
-    List<List<String?>> mainList = [];
-    int length = 1;
-    bool hasData = false;
-    List<int> indexList = [];
+    // Disable variant generation since we don't want size and color options
     _variantTypeList = [];
-    for (var attribute in _attributeList!) {
-      if (attribute.active) {
-        hasData = true;
-        mainList.add(attribute.variants);
-        length = length * attribute.variants.length;
-        indexList.add(0);
-      }
-    }
-    if (!hasData) {
-      length = 0;
-    }
-    for (int i = 0; i < length; i++) {
-      String value = '';
-      for (int j = 0; j < mainList.length; j++) {
-        value = value +
-            (value.isEmpty ? '' : '-') +
-            mainList[j][indexList[j]]!.trim();
-      }
-      if (product != null) {
-        double? price = 0;
-        int? quantity = 0;
-        for (Variation variation in product.variation!) {
-          if (variation.type == value) {
-            price = variation.price;
-            quantity = variation.qty;
-            break;
-          }
-        }
-        _variantTypeList.add(VariantTypeModel(
-          variantType: value,
-          controller: TextEditingController(
-              text: price! > 0
-                  ? PriceConverter.convertPriceWithoutSymbol(context, price)
-                  : ''),
-          node: FocusNode(),
-          qtyController: TextEditingController(text: quantity.toString()),
-          qtyNode: FocusNode(),
-        ));
-        // _variationTotalQuantity
-      } else {
-        _variantTypeList.add(VariantTypeModel(
-            variantType: value,
-            controller: TextEditingController(),
-            node: FocusNode(),
-            qtyController: TextEditingController(),
-            qtyNode: FocusNode()));
-      }
-
-      for (int j = 0; j < mainList.length; j++) {
-        if (indexList[indexList.length - (1 + j)] <
-            mainList[mainList.length - (1 + j)].length - 1) {
-          indexList[indexList.length - (1 + j)] =
-              indexList[indexList.length - (1 + j)] + 1;
-          break;
-        } else {
-          indexList[indexList.length - (1 + j)] = 0;
-        }
-      }
-    }
-    // if(_variantTypeList.isNotEmpty){
-    //   for(int i=0; i<_variantTypeList.length; i++){
-    //     int qty = int.tryParse(_variantTypeList[i].qtyController.text) ?? 0;
-    //     _variationTotalQuantity = _variationTotalQuantity + qty;
-    //   }
-    // }
-    // print("====TotalVariationCount=====>${_variationTotalQuantity}");
+    return;
   }
 
   bool hasAttribute() {
@@ -1467,4 +1558,62 @@ class AddProductController extends ChangeNotifier {
   final TextEditingController taxController = TextEditingController();
   final TextEditingController minimumOrderQuantityController =
       TextEditingController();
+
+  void setCategoryUnits(String? categoryId) {
+    _categoryUnits = [];
+    if (categoryId != null) {
+      String languageCode =
+          Provider.of<LocalizationController>(Get.context!, listen: false)
+                      .locale
+                      .countryCode ==
+                  'US'
+              ? 'en'
+              : 'sa';
+
+      // Define units based on language
+      Map<String, Map<String, String>> unitTranslations = {
+        'kg': {'en': 'kg', 'sa': 'كيلوجرام'},
+        'gm': {'en': 'gm', 'sa': 'جرام'},
+        'ltr': {'en': 'ltr', 'sa': 'لتر'},
+        'pc': {'en': 'pc', 'sa': 'قطعة'},
+        'meter': {'en': 'meter', 'sa': 'متر'},
+        'cm': {'en': 'cm', 'sa': 'سم'}
+      };
+
+      if (_categoryList != null) {
+        for (var category in _categoryList!) {
+          if (category.id.toString() == categoryId) {
+            // Fruits and Vegetables (IDs 21 and 22)
+            if (category.id == 21 || category.id == 22) {
+              _categoryUnits = [
+                unitTranslations['kg']![languageCode]!,
+                unitTranslations['gm']![languageCode]!
+              ];
+            }
+            // Clothing category (assuming ID 23)
+            else if (category.id == 23) {
+              _categoryUnits = [
+                unitTranslations['meter']![languageCode]!,
+                unitTranslations['cm']![languageCode]!,
+                unitTranslations['pc']![languageCode]!
+              ];
+            }
+            // Default units for other categories
+            else {
+              _categoryUnits = [
+                unitTranslations['pc']![languageCode]!,
+                unitTranslations['kg']![languageCode]!,
+                unitTranslations['gm']![languageCode]!,
+                unitTranslations['ltr']![languageCode]!
+              ];
+            }
+            break;
+          }
+        }
+      }
+    }
+    // Reset unit value when category changes
+    _unitValue = null;
+    notifyListeners();
+  }
 }
