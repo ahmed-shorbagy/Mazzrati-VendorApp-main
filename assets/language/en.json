@@ -942,5 +942,16 @@
   "otp_sent_successfully": "Verification code sent successfully",
   "enter_new_password": "Enter new password",
   "verify_code_first": "Please verify the code first",
-  "otp_verified_successfully": "OTP verified successfully"
+  "otp_verified_successfully": "OTP verified successfully",
+  "want_discount": "Do you want a discount?",
+  "refrigerated": "Refrigerated",
+  "non_refrigerated": "Non-refrigerated",
+  "please_select_shipping_method": "Please select shipping method",
+  "shipping_capacity": "Shipping Capacity",
+  "shipping_capacity_hint": "Enter the number of boxes or pallets that fill one vehicle.",
+  "minimum_delivery_limit": "Minimum Delivery Limit",
+  "minimum_delivery_limit_hint": "Enter the minimum number of boxes or pallets you can ship and deliver to the buyer.",
+  "please_enter_valid_number": "Please enter a valid number",
+  "shipping_capacity_required": "Shipping capacity is required",
+  "minimum_delivery_required": "Minimum delivery limit is required"
 }

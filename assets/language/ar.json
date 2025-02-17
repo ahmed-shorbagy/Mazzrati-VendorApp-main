@@ -17,7 +17,9 @@
   "ok": "نعم",
   "choose_language": "اختر اللغة",
   "settings_screen": "شاشة إعدادات",
-  "shipping_method": "طريقة الشحن",
+  "shipping_method": "وسيلة الشحن",
+  "refrigerated": "مبرد",
+  "non_refrigerated": "غير مبرد",
   "title": "لقب",
   "duration": "المدة الزمنية",
   "cost": "كلفة",
@@ -324,7 +326,6 @@
   "select_brand": "اختر الماركة",
   "select_category": "اختر الفئة",
   "shipping_type": "طريقة الشحن",
-
   "select_unit": "اختر الوحدة",
   "add_color_variation": "أضف تنوع اللون",
   "type_color_name": "اكتب اسم اللون",
@@ -949,5 +950,17 @@
   "phone_copied": "تم نسخ رقم الجوال",
   "no_email_to_copy": "لا يوجد بريد الكتروني لنسخه",
   "no_phone_to_copy": "لا يوجد رقم جوال لنسخه",
-  "select_category": "اختر الفئة"
+  "select_category": "اختر الفئة",
+  "want_discount": "هل ترغب في التخفيض؟",
+  "yes": "نعم",
+  "no": "لا",
+  "discounted_price": "السعر بعد الخصم",
+  "please_select_shipping_method": "الرجاء اختيار وسيلة الشحن",
+  "shipping_capacity": "سعة الشحنة الواحدة",
+  "shipping_capacity_hint": "اكتب هنا عدد الصناديق أو الجبات التي تملأ السيارة الواحدة",
+  "minimum_delivery_limit": "الحد الأدنى للتوصيل",
+  "minimum_delivery_limit_hint": "اكتب هنا عدد الصناديق أو الجبات التي يمكنك شحنها وتوصيلها للمشتري",
+  "please_enter_valid_number": "الرجاء إدخال رقم صحيح",
+  "shipping_capacity_required": "سعة الشحن مطلوبة",
+  "minimum_delivery_required": "الحد الأدنى للتوصيل مطلوب"
 }

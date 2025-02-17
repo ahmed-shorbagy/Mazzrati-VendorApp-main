@@ -168,6 +168,17 @@ class AddProductController extends ChangeNotifier {
   List<String>? _categoryUnits;
   List<String>? get categoryUnits => _categoryUnits;
 
+  bool _wantDiscount = false;
+  bool get wantDiscount => _wantDiscount;
+  String _discountedPrice = '0';
+  String get discountedPrice => _discountedPrice;
+
+  int? _shippingCapacity;
+  int? _minimumDeliveryLimit;
+
+  int? get shippingCapacity => _shippingCapacity;
+  int? get minimumDeliveryLimit => _minimumDeliveryLimit;
+
   void setShippingType(String type) {
     _shippingType = type;
     notifyListeners();
@@ -1615,5 +1626,84 @@ class AddProductController extends ChangeNotifier {
     // Reset unit value when category changes
     _unitValue = null;
     notifyListeners();
+  }
+
+  void setWantDiscount(bool value) {
+    _wantDiscount = value;
+    if (!value) {
+      discountController.clear();
+      _discountedPrice = '0';
+    }
+    notifyListeners();
+  }
+
+  void updateDiscountedPrice(BuildContext context) {
+    if (unitPriceController.text.isEmpty) {
+      _discountedPrice = '0';
+      notifyListeners();
+      return;
+    }
+
+    double originalPrice = double.tryParse(unitPriceController.text) ?? 0;
+    double discountValue = double.tryParse(discountController.text) ?? 0;
+
+    if (discountValue <= 0) {
+      _discountedPrice = PriceConverter.convertPrice(context, originalPrice);
+      notifyListeners();
+      return;
+    }
+
+    if (_discountTypeIndex == 0) {
+      // Percentage
+      if (discountValue > 100) {
+        discountValue = 100;
+        discountController.text = '100';
+      }
+      double discount = (originalPrice * discountValue) / 100;
+      _discountedPrice =
+          PriceConverter.convertPrice(context, originalPrice - discount);
+    } else {
+      // Fixed amount
+      if (discountValue > originalPrice) {
+        discountValue = originalPrice;
+        discountController.text = originalPrice.toString();
+      }
+      _discountedPrice =
+          PriceConverter.convertPrice(context, originalPrice - discountValue);
+    }
+    notifyListeners();
+  }
+
+  void setShippingCapacity(int capacity) {
+    _shippingCapacity = capacity;
+    notifyListeners();
+  }
+
+  void setMinimumDeliveryLimit(int limit) {
+    _minimumDeliveryLimit = limit;
+    notifyListeners();
+  }
+
+  bool validateShippingInfo() {
+    if (_shippingCapacity == null || _shippingCapacity! <= 0) {
+      return false;
+    }
+    if (_minimumDeliveryLimit == null || _minimumDeliveryLimit! <= 0) {
+      return false;
+    }
+    if (_minimumDeliveryLimit! > _shippingCapacity!) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  void dispose() {
+    discountController.dispose();
+    shippingCostController.dispose();
+    unitPriceController.dispose();
+    taxController.dispose();
+    minimumOrderQuantityController.dispose();
+    super.dispose();
   }
 }
