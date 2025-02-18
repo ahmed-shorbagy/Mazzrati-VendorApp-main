@@ -250,68 +250,6 @@ class PriceStockSection extends StatelessWidget {
                   minDeliveryLimitController: _minDeliveryLimitController,
                 ),
 
-                // Quantity Section
-                // Row(
-                //   children: [
-                //     if (resProvider.productTypeIndex == 0)
-                //       Expanded(
-                //         child: Column(
-                //           crossAxisAlignment: CrossAxisAlignment.start,
-                //           children: [
-                //             Text(
-                //               getTranslated('total_quantity', context)!,
-                //               style: robotoRegular.copyWith(
-                //                 fontSize: Dimensions.fontSizeDefault,
-                //                 color: ColorResources.titleColor(context),
-                //               ),
-                //             ),
-                //             const SizedBox(
-                //                 height: Dimensions.paddingSizeExtraSmall),
-                //             CustomTextFieldWidget(
-                //               idDate: resProvider.variantTypeList.isNotEmpty,
-                //               border: true,
-                //               textInputType: TextInputType.number,
-                //               focusNode: _totalQuantityNode,
-                //               controller: resProvider.totalQuantityController,
-                //               textInputAction: TextInputAction.next,
-                //               isAmount: true,
-                //               hintText: 'Ex: 500',
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     SizedBox(
-                //         width: resProvider.productTypeIndex == 0
-                //             ? Dimensions.paddingSizeDefault
-                //             : 0),
-                //     Expanded(
-                //       child: Column(
-                //         crossAxisAlignment: CrossAxisAlignment.start,
-                //         children: [
-                //           Text(
-                //             getTranslated('minimum_order_quantity', context)!,
-                //             style: robotoRegular.copyWith(
-                //               fontSize: Dimensions.fontSizeDefault,
-                //               color: ColorResources.titleColor(context),
-                //             ),
-                //           ),
-                //           const SizedBox(
-                //               height: Dimensions.paddingSizeExtraSmall),
-                //           CustomTextFieldWidget(
-                //             border: true,
-                //             textInputType: TextInputType.number,
-                //             focusNode: _minimumOrderQuantityNode,
-                //             controller:
-                //                 resProvider.minimumOrderQuantityController,
-                //             textInputAction: TextInputAction.next,
-                //             isAmount: true,
-                //             hintText: 'Ex: 500',
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   ],
-                // ),
                 const SizedBox(height: Dimensions.paddingSizeExtraLarge),
               ],
             ),

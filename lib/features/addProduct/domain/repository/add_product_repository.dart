@@ -1,25 +1,25 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:flutter/foundation.dart';
-import 'package:path/path.dart';
-import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
 import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 import 'package:mazzraati_vendor_app/data/datasource/remote/dio/dio_client.dart';
 import 'package:mazzraati_vendor_app/data/datasource/remote/exception/api_error_handler.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/image_model.dart';
-import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/repository/add_product_repository_interface.dart';
-import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
+import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/utill/app_constants.dart';
+import 'package:path/path.dart';
+import 'package:provider/provider.dart';
 
 class AddProductRepository implements AddProductRepositoryInterface {
   final DioClient? dioClient;
@@ -204,6 +204,9 @@ class AddProductRepository implements AddProductRepositoryInterface {
       'meta_image': metaImage,
       'current_stock': product.currentStock,
       'shipping_cost': product.shippingCost,
+      'shipping_type': product.shippingType,
+      'shipping_capacity': product.shippingCapacity,
+      'minimum_delivery_limit': product.minimumDeliveryLimit,
       'multiply_qty': product.multiplyWithQuantity,
       'code': product.code,
       'minimum_order_qty': product.minimumOrderQty,
@@ -279,7 +282,8 @@ class AddProductRepository implements AddProductRepositoryInterface {
           data: fields,
           files: multiPartFiles,
         );
-
+        log("SUCEESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+        log(response.toString());
         return ApiResponse.withSuccess(response);
       } catch (e) {
         return ApiResponse.withError(ApiErrorHandler.getMessage(e));
@@ -290,8 +294,12 @@ class AddProductRepository implements AddProductRepositoryInterface {
           '${AppConstants.baseUrl}${isAdd ? AppConstants.addProductUri : '${AppConstants.updateProductUri}/${product.id}'}',
           data: fields,
         );
+        log("SUCEESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+        log(response.toString());
         return ApiResponse.withSuccess(response);
       } catch (e) {
+        log("FaAILEDDDDDDDDDDDDDDDDDDDDDDDDDDD");
+        log(e.toString());
         return ApiResponse.withError(ApiErrorHandler.getMessage(e));
       }
     }

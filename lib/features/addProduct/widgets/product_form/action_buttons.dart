@@ -50,7 +50,7 @@ class ActionButtons extends StatelessWidget {
             child: Consumer<AddProductController>(
               builder: (context, resProvider, _) {
                 return CustomButtonWidget(
-                  btnTxt: getTranslated('next', context),
+                  btnTxt: getTranslated('submit', context),
                   onTap: onNext,
                 );
               },

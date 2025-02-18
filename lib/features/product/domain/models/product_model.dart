@@ -91,6 +91,8 @@ class Product {
   List<DigitalVariation>? digitalVariation;
   ImageFullUrl? metaImageFullUrl;
   String? shippingType;
+  int? shippingCapacity;
+  int? minimumDeliveryLimit;
 
   Product(
       {this.id,
@@ -147,7 +149,9 @@ class Product {
       List<Tags>? tags,
       this.metaSeoInfo,
       this.digitalVariation,
-      this.shippingType = 'non_refrigerated'}) {
+      this.shippingType = 'non_refrigerated',
+      this.shippingCapacity,
+      this.minimumDeliveryLimit}) {
     if (digitalProductType != null) {
       this.digitalProductType = digitalProductType;
     }
@@ -330,6 +334,14 @@ class Product {
     }
 
     shippingType = json['shipping_type'] ?? 'non_refrigerated';
+
+    if (json['shipping_capacity'] != null) {
+      shippingCapacity = int.parse(json['shipping_capacity'].toString());
+    }
+    if (json['minimum_delivery_limit'] != null) {
+      minimumDeliveryLimit =
+          int.parse(json['minimum_delivery_limit'].toString());
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -396,6 +408,8 @@ class Product {
       data['seo_info'] = metaSeoInfo!.toJson();
     }
     data['shipping_type'] = shippingType;
+    data['shipping_capacity'] = shippingCapacity;
+    data['minimum_delivery_limit'] = minimumDeliveryLimit;
     return data;
   }
 }

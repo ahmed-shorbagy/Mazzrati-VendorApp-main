@@ -24,7 +24,6 @@ import 'package:mazzraati_vendor_app/features/addProduct/domain/models/image_mod
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/product_image_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/variant_type_model.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/services/add_product_service_interface.dart';
-import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
 import 'package:mazzraati_vendor_app/features/dashboard/screens/dashboard_screen.dart';
 import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
@@ -39,8 +38,13 @@ import 'package:provider/provider.dart';
 
 class AddProductController extends ChangeNotifier {
   final AddProductServiceInterface shopServiceInterface;
+  late TextEditingController _shippingCapacityController;
+  late TextEditingController _minDeliveryLimitController;
 
-  AddProductController({required this.shopServiceInterface});
+  AddProductController({required this.shopServiceInterface}) {
+    _shippingCapacityController = TextEditingController();
+    _minDeliveryLimitController = TextEditingController();
+  }
 
   int _totalQuantity = 0;
   int get totalQuantity => _totalQuantity;
@@ -178,6 +182,11 @@ class AddProductController extends ChangeNotifier {
 
   int? get shippingCapacity => _shippingCapacity;
   int? get minimumDeliveryLimit => _minimumDeliveryLimit;
+
+  TextEditingController get shippingCapacityController =>
+      _shippingCapacityController;
+  TextEditingController get minDeliveryLimitController =>
+      _minDeliveryLimitController;
 
   void setShippingType(String type) {
     _shippingType = type;
@@ -1041,71 +1050,114 @@ class AddProductController extends ChangeNotifier {
       String? metaImage,
       bool isAdd,
       List<String?> tags) async {
-    log("addProduct $isAdd");
+    log("=== Starting addProduct API call ===");
+
+    // Validate required fields
+    if (thumbnail == null) {
+      showCustomSnackBarWidget(
+        getTranslated('upload_thumbnail_image', Get.context!),
+        Get.context!,
+        isError: true,
+      );
+      return;
+    }
+
+    if (unitPriceController.text.isEmpty) {
+      showCustomSnackBarWidget(
+        getTranslated('enter_unit_price', Get.context!),
+        Get.context!,
+        isError: true,
+      );
+      return;
+    }
+
+    // Validate shipping info
+    // if (!validateShippingInfo()) {
+    //   return;
+    // }
+
     _isLoading = true;
-    DigitalVariationModel? digitalVariationModel;
-    String? token;
     notifyListeners();
-    Map<String, dynamic> fields = {};
-    if (_variantTypeList.isNotEmpty) {
-      List<int?> idList = [];
-      List<String?> nameList = [];
-      for (var attributeModel in _attributeList!) {
-        if (attributeModel.active) {
-          if (attributeModel.attribute.id != 0) {
-            idList.add(attributeModel.attribute.id);
-            nameList.add(attributeModel.attribute.name);
-          }
-          List<String?> variantString = [];
-          for (var variant in attributeModel.variants) {
-            variantString.add(variant);
-          }
-          fields.addAll(<String, dynamic>{
-            'choice_options_${attributeModel.attribute.id}': variantString
-          });
-        }
-      }
-      fields.addAll(<String, dynamic>{
-        'choice_attributes': jsonEncode(idList),
-        'choice_no': jsonEncode(idList),
-        'choice': jsonEncode(nameList)
-      });
 
-      for (int index = 0; index < _variantTypeList.length; index++) {
-        fields.addAll(<String, dynamic>{
-          'price_${_variantTypeList[index].variantType}':
-              PriceConverter.systemCurrencyToDefaultCurrency(
-                  double.parse(_variantTypeList[index].controller.text),
-                  context)
-        });
-        fields.addAll(<String, dynamic>{
-          'qty_${_variantTypeList[index].variantType}':
-              int.parse(_variantTypeList[index].qtyController.text)
-        });
-        fields.addAll(<String, dynamic>{
-          'sku_${_variantTypeList[index].variantType}':
-              "sku_${_variantTypeList[index].variantType}"
-        });
-        _totalQuantity += int.parse(_variantTypeList[index].qtyController.text);
-      }
-      if (kDebugMode) {
-        print('=====Total_Quantity======>$_totalQuantity');
-      }
-    }
+    try {
+      final splashProvider =
+          Provider.of<SplashController>(context, listen: false);
 
-    if (_selectedDigitalVariation.isNotEmpty) {
-      digitalVariationModel = getDigitalVariationModel();
-      token =
-          Provider.of<AuthController>(context, listen: false).getUserToken();
-    }
+      // Prepare fields
+      Map<String, dynamic> fields = {
+        'name': jsonEncode([
+          addProduct.titleList
+                  ?.firstWhere((title) => title.isNotEmpty, orElse: () => '') ??
+              '',
+          addProduct.titleList
+                  ?.lastWhere((title) => title.isNotEmpty, orElse: () => '') ??
+              ''
+        ]),
+        'description': jsonEncode([
+          addProduct.descriptionList
+                  ?.firstWhere((desc) => desc.isNotEmpty, orElse: () => '') ??
+              '',
+          addProduct.descriptionList
+                  ?.lastWhere((desc) => desc.isNotEmpty, orElse: () => '') ??
+              ''
+        ]),
+        'unit_price': double.parse(unitPriceController.text.trim()),
+        'purchase_price': double.parse(unitPriceController.text.trim()),
+        'discount':
+            wantDiscount ? double.parse(discountController.text.trim()) : 0,
+        'discount_type': wantDiscount
+            ? (discountTypeIndex == 0 ? 'percent' : 'flat')
+            : 'flat',
+        'tax': double.parse(taxController.text.trim()),
+        'tax_model': taxTypeIndex == 0 ? 'include' : 'exclude',
+        'category_id': product.categoryIds?[0].id,
+        'unit': _unitValue,
+        'brand_id': product.brandId ?? 0,
+        'shipping_type': _shippingType,
+        'shipping_capacity': _shippingCapacity,
+        'minimum_delivery_limit': _minimumDeliveryLimit,
+        'product_type': productTypeIndex == 0 ? 'physical' : 'digital',
+        'digital_product_type': productTypeIndex == 1
+            ? (digitalProductTypeIndex == 0
+                ? 'ready_after_sell'
+                : 'ready_product')
+            : null,
+        'code': _productCode.text.isEmpty ? null : _productCode.text,
+        'minimum_order_qty': 1,
+        'current_stock': 1,
+        'shipping_cost': 0.0,
+        'multiply_qty': null,
+        'colors': jsonEncode([]),
+        'color_image': jsonEncode([]),
+        'colors_active': false,
+        'video_url': '',
+        'thumbnail': thumbnail,
+        'meta_image': metaImage,
+        'images': jsonEncode(productReturnImage ?? []),
+        'lang': jsonEncode(['en', 'sa']),
+        'meta_title': null,
+        'meta_description': null,
+        'meta_index': 'noindex',
+        'meta_no_follow': 'nonofollow',
+        'meta_no_image_index': '0',
+        'meta_no_archive': '0',
+        'meta_no_snippet': '0',
+        'meta_max_snippet': '0',
+        'meta_max_snippet_value': null,
+        'meta_max_video_preview': '0',
+        'meta_max_video_preview_value': null,
+        'meta_max_image_preview': '0',
+        'meta_max_image_preview_value': 'large',
+        'tags': jsonEncode([]),
+      };
 
-    setMetaSeoData(product);
+      log("=== Request Fields ===");
+      log("Shipping Capacity: $_shippingCapacity");
+      log("Minimum Delivery Limit: $_minimumDeliveryLimit");
+      log(jsonEncode(fields));
 
-    fields.addAll(<String, dynamic>{
-      'shipping_type': _shippingType,
-    });
-
-    ApiResponse response = await shopServiceInterface.addProduct(
+      // Make API call
+      ApiResponse response = await shopServiceInterface.addProduct(
         product,
         addProduct,
         fields,
@@ -1113,54 +1165,71 @@ class AddProductController extends ChangeNotifier {
         thumbnail,
         metaImage,
         isAdd,
-        attributeList![0].active,
-        colorImageObject,
-        tags,
-        _digitalProductFileName,
-        digitalVariationModel,
-        _selectedDigitalVariation.isNotEmpty,
-        token);
-    if (response.response != null && response.response?.statusCode == 200) {
-      _productCode.clear();
-      Navigator.pushAndRemoveUntil(
+        false,
+        [],
+        [],
+        null,
+        null,
+        false,
+        null,
+      );
+
+      log("=== API Response ===");
+      log("Status Code: ${response.response?.statusCode}");
+      log("Response Data: ${response.response?.data}");
+
+      if (response.response != null && response.response?.statusCode == 200) {
+        _clearData();
+        showCustomSnackBarWidget(
+          getTranslated('product_added_successfully', Get.context!),
+          Get.context!,
+          isError: false,
+        );
+        Navigator.pushAndRemoveUntil(
           Get.context!,
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
-          (route) => false);
-      showCustomSnackBarWidget(
-          isAdd
-              ? getTranslated('product_added_successfully', Get.context!)
-              : getTranslated('product_updated_successfully', Get.context!),
+          (route) => false,
+        );
+      } else {
+        ApiChecker.checkApi(response);
+        showCustomSnackBarWidget(
+          getTranslated('product_add_failed', Get.context!),
           Get.context!,
-          isError: false);
-      titleControllerList.clear();
-      descriptionControllerList.clear();
-      _pickedLogo = null;
-      _pickedCover = null;
-      _coveredImage = null;
-      _productImage = [];
-      colorImageObject = [];
-      productReturnImage = [];
-      withColor = [];
-      withoutColor = [];
-      emptyDigitalProductData();
-      _isLoading = false;
-      _selectedFileForImport = null;
-      _digitalProductFileName = '';
-      _metaSeoInfo = MetaSeoInfo();
-    } else {
-      //colorWithImage = [];
-      productReturnImage = [];
-      withColor = [];
-      colorImageObject = [];
-      withoutColor = [];
-      _isLoading = false;
-      ApiChecker.checkApi(response);
+          isError: true,
+        );
+      }
+    } catch (e) {
+      log("Error adding product: $e");
       showCustomSnackBarWidget(
-          getTranslated('product_add_failed', Get.context!), Get.context!,
-          sanckBarType: SnackBarType.error);
+        getTranslated('product_add_failed', Get.context!),
+        Get.context!,
+        isError: true,
+      );
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    _isLoading = false;
-    notifyListeners();
+  }
+
+  void _clearData() {
+    _productCode.clear();
+    titleControllerList.clear();
+    descriptionControllerList.clear();
+    _pickedLogo = null;
+    _pickedMeta = null;
+    _coveredImage = null;
+    _productImage = [];
+    productReturnImage = [];
+    _unitValue = null;
+    _shippingCapacity = null;
+    _minimumDeliveryLimit = null;
+    _shippingCapacityController.clear();
+    _minDeliveryLimitController.clear();
+    unitPriceController.clear();
+    taxController.text = '0';
+    discountController.clear();
+    _wantDiscount = false;
+    _metaSeoInfo = MetaSeoInfo();
   }
 
   void setMetaSeoData(Product product) {
@@ -1674,27 +1743,107 @@ class AddProductController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setShippingCapacity(int capacity) {
-    _shippingCapacity = capacity;
+  void setShippingCapacity(String value) {
+    if (value.isNotEmpty) {
+      _shippingCapacity = int.tryParse(value);
+    }
     notifyListeners();
   }
 
-  void setMinimumDeliveryLimit(int limit) {
-    _minimumDeliveryLimit = limit;
+  void setMinimumDeliveryLimit(String value) {
+    if (value.isNotEmpty) {
+      _minimumDeliveryLimit = int.parse(value);
+    }
     notifyListeners();
   }
 
   bool validateShippingInfo() {
-    if (_shippingCapacity == null || _shippingCapacity! <= 0) {
+    if (_shippingCapacityController.text.isEmpty ||
+        _minDeliveryLimitController.text.isEmpty) {
+      showCustomSnackBarWidget(
+        getTranslated('please_enter_shipping_info', Get.context!),
+        Get.context!,
+        isError: true,
+      );
       return false;
     }
-    if (_minimumDeliveryLimit == null || _minimumDeliveryLimit! <= 0) {
+
+    try {
+      _shippingCapacity = int.parse(_shippingCapacityController.text.trim());
+      _minimumDeliveryLimit =
+          int.parse(_minDeliveryLimitController.text.trim());
+
+      if (_shippingCapacity! <= 0 || _minimumDeliveryLimit! <= 0) {
+        showCustomSnackBarWidget(
+          getTranslated('please_enter_valid_shipping_values', Get.context!),
+          Get.context!,
+          isError: true,
+        );
+        return false;
+      }
+
+      if (_minimumDeliveryLimit! > _shippingCapacity!) {
+        showCustomSnackBarWidget(
+          getTranslated(
+              'minimum_delivery_cant_be_more_than_capacity', Get.context!),
+          Get.context!,
+          isError: true,
+        );
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      showCustomSnackBarWidget(
+        getTranslated('please_enter_valid_number', Get.context!),
+        Get.context!,
+        isError: true,
+      );
       return false;
     }
-    if (_minimumDeliveryLimit! > _shippingCapacity!) {
-      return false;
+  }
+
+  void updateShippingInfo() {
+    if (_shippingCapacityController.text.isNotEmpty) {
+      try {
+        _shippingCapacity = int.parse(_shippingCapacityController.text.trim());
+      } catch (e) {
+        showCustomSnackBarWidget(
+          getTranslated('please_enter_valid_number', Get.context!),
+          Get.context!,
+          isError: true,
+        );
+        return;
+      }
     }
-    return true;
+
+    if (_minDeliveryLimitController.text.isNotEmpty) {
+      try {
+        _minimumDeliveryLimit =
+            int.parse(_minDeliveryLimitController.text.trim());
+      } catch (e) {
+        showCustomSnackBarWidget(
+          getTranslated('please_enter_valid_number', Get.context!),
+          Get.context!,
+          isError: true,
+        );
+        return;
+      }
+    }
+
+    if (_shippingCapacity != null && _minimumDeliveryLimit != null) {
+      if (_minimumDeliveryLimit! > _shippingCapacity!) {
+        showCustomSnackBarWidget(
+          getTranslated(
+              'minimum_delivery_cant_be_more_than_capacity', Get.context!),
+          Get.context!,
+          isError: true,
+        );
+        return;
+      }
+    }
+
+    notifyListeners();
   }
 
   @override
@@ -1704,6 +1853,8 @@ class AddProductController extends ChangeNotifier {
     unitPriceController.dispose();
     taxController.dispose();
     minimumOrderQuantityController.dispose();
+    _shippingCapacityController.dispose();
+    _minDeliveryLimitController.dispose();
     super.dispose();
   }
 }

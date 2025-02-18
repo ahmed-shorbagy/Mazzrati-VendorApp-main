@@ -171,7 +171,41 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
       final splashProvider =
           Provider.of<SplashController>(context, listen: false);
 
-      // Create Product model
+      // Get shipping values directly from controllers
+      int? shippingCapacity =
+          int.tryParse(_shippingCapacityController.text.trim());
+      int? minimumDeliveryLimit =
+          int.tryParse(_minDeliveryLimitController.text.trim());
+
+      // Validate shipping values
+      if (shippingCapacity == null || minimumDeliveryLimit == null) {
+        showCustomSnackBarWidget(
+          getTranslated('please_enter_shipping_info', context),
+          context,
+          isError: true,
+        );
+        return;
+      }
+
+      if (shippingCapacity <= 0 || minimumDeliveryLimit <= 0) {
+        showCustomSnackBarWidget(
+          getTranslated('please_enter_valid_shipping_values', context),
+          context,
+          isError: true,
+        );
+        return;
+      }
+
+      if (minimumDeliveryLimit > shippingCapacity) {
+        showCustomSnackBarWidget(
+          getTranslated('minimum_delivery_cant_be_more_than_capacity', context),
+          context,
+          isError: true,
+        );
+        return;
+      }
+
+      // Create Product model with validated shipping values
       Product product = Product(
         tax: double.parse(provider.taxController.text.trim()),
         unitPrice: double.parse(provider.unitPriceController.text.trim()),
@@ -181,6 +215,8 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         discountType: provider.discountTypeIndex == 0 ? 'percent' : 'flat',
         taxModel: provider.taxTypeIndex == 0 ? 'include' : 'exclude',
         shippingType: provider.shippingType,
+        shippingCapacity: shippingCapacity,
+        minimumDeliveryLimit: minimumDeliveryLimit,
         shippingCost: double.parse(provider.shippingCostController.text.trim()),
         minimumOrderQty:
             int.parse(provider.minimumOrderQuantityController.text.trim()),
