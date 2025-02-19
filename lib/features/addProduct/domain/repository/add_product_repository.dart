@@ -180,6 +180,7 @@ class AddProductRepository implements AddProductRepositoryInterface {
       'name': jsonEncode(addProduct.titleList),
       'description': jsonEncode(addProduct.descriptionList),
       'unit_price': product.unitPrice,
+      'purchase_price': product.unitPrice,
       'discount': product.discount,
       'discount_type': product.discountType,
       'tax': product.tax,
@@ -198,7 +199,8 @@ class AddProductRepository implements AddProductRepositoryInterface {
       'colors': jsonEncode(addProduct.colorCodeList),
       'images': jsonEncode(productImages),
       'color_image': jsonEncode(colorImage),
-      'thumbnail': thumbnail,
+      'thumbnail': basename(thumbnail ?? ''),
+      'thumbnail_storage': 'public',
       'colors_active': isActiveColor,
       'video_url': addProduct.videoUrl,
       'meta_image': metaImage,
@@ -211,9 +213,9 @@ class AddProductRepository implements AddProductRepositoryInterface {
       'code': product.code,
       'minimum_order_qty': product.minimumOrderQty,
       'product_type': product.productType,
-      "digital_product_type": product.digitalProductType,
-      "digital_file_ready": digitalFileReady ?? product.digitalFileReady,
-      "tags": jsonEncode(tags),
+      'digital_product_type': product.digitalProductType,
+      'digital_file_ready': digitalFileReady ?? product.digitalFileReady,
+      'tags': jsonEncode(tags),
     });
 
     if (product.metaSeoInfo != null) {

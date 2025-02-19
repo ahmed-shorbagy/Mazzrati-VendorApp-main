@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
@@ -52,8 +52,9 @@ class _TitleAndDescriptionWidgetState extends State<TitleAndDescriptionWidget> {
             formProduct: true,
             textInputAction: TextInputAction.next,
             controller: TextEditingController(
-                text:
-                    widget.resProvider.titleControllerList[widget.index].text),
+                text: widget.resProvider.titleControllerList.isNotEmpty
+                    ? widget.resProvider.titleControllerList[widget.index].text
+                    : ''),
             textInputType: TextInputType.name,
             required: true,
             hintText: getTranslated('product_name', context),
@@ -85,8 +86,10 @@ class _TitleAndDescriptionWidgetState extends State<TitleAndDescriptionWidget> {
             required: false,
             isDescription: true,
             controller: TextEditingController(
-                text: widget
-                    .resProvider.descriptionControllerList[widget.index].text),
+                text: widget.resProvider.descriptionControllerList.isNotEmpty
+                    ? widget.resProvider.descriptionControllerList[widget.index]
+                        .text
+                    : ''),
             onChanged: (String text) =>
                 widget.resProvider.setDescription(widget.index, text),
             textInputType: TextInputType.multiline,

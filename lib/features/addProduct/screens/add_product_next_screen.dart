@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_app_bar_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
+import 'package:mazzraati_vendor_app/data/model/image_full_url.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/domain/models/add_product_model.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
@@ -10,6 +11,7 @@ import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controll
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
+import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 
 import '../widgets/product_form/action_buttons.dart';
@@ -215,9 +217,21 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         discountType: provider.discountTypeIndex == 0 ? 'percent' : 'flat',
         taxModel: provider.taxTypeIndex == 0 ? 'include' : 'exclude',
         shippingType: provider.shippingType,
+        thumbnail: provider.pickedLogo != null
+            ? path.basename(provider.pickedLogo!.path)
+            : '',
+        thumbnailFullUrl: provider.pickedLogo != null
+            ? ImageFullUrl(
+                path: provider.pickedLogo!.path,
+                key: path.basename(provider.pickedLogo!.path),
+                status: 200,
+              )
+            : null,
         shippingCapacity: shippingCapacity,
         minimumDeliveryLimit: minimumDeliveryLimit,
-        shippingCost: double.parse(provider.shippingCostController.text.trim()),
+        shippingCost: provider.shippingCostController.text.isNotEmpty
+            ? double.parse(provider.shippingCostController.text.trim())
+            : 0.0,
         minimumOrderQty:
             int.parse(provider.minimumOrderQuantityController.text.trim()),
         productType: provider.productTypeIndex == 0 ? 'physical' : 'digital',
@@ -238,7 +252,8 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
             ?.map((e) => e.code)
             .toList(),
         colorCodeList: provider.colorCodeList,
-        thumbnailList: [],
+        thumbnailList:
+            provider.pickedLogo != null ? [provider.pickedLogo!.path] : [],
         videoUrl: '',
       );
 

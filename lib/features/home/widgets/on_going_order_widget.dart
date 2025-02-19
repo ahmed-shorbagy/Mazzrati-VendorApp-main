@@ -1,20 +1,16 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/confirmation_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_screen.dart';
 import 'package:mazzraati_vendor_app/features/auction/screens/add_auction_screen.dart';
-import 'package:mazzraati_vendor_app/features/auth/widgets/location_picker_screen.dart';
 import 'package:mazzraati_vendor_app/features/bank_info/controllers/bank_info_controller.dart';
 import 'package:mazzraati_vendor_app/features/bank_info/screens/bank_info_screen.dart';
 import 'package:mazzraati_vendor_app/features/home/widgets/buttonWidget.dart';
+import 'package:mazzraati_vendor_app/features/home/widgets/order_type_button_head_widget.dart';
 import 'package:mazzraati_vendor_app/features/order/controllers/order_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
-import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/features/product/screens/suggested_product_screen.dart';
 import 'package:mazzraati_vendor_app/features/profile/controllers/profile_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
@@ -22,7 +18,7 @@ import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/features/home/widgets/order_type_button_head_widget.dart';
+import 'package:provider/provider.dart';
 
 class OngoingOrderWidget extends StatelessWidget {
   final Function? callback;

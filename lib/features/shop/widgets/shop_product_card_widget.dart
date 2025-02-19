@@ -1,25 +1,27 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:provider/provider.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/confirmation_dialog_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_image_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/image_diaglog_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_screen.dart';
 import 'package:mazzraati_vendor_app/features/barcode/controllers/barcode_controller.dart';
-import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
-import 'package:mazzraati_vendor_app/helper/price_converter.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
+import 'package:mazzraati_vendor_app/features/barcode/screens/bar_code_generator_screen.dart';
 import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
+import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
+import 'package:mazzraati_vendor_app/features/product_details/screens/product_details_screen.dart';
 import 'package:mazzraati_vendor_app/features/profile/controllers/profile_controller.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:mazzraati_vendor_app/helper/price_converter.dart';
+import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/confirmation_dialog_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_image_widget.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/image_diaglog_widget.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/screens/add_product_screen.dart';
-import 'package:mazzraati_vendor_app/features/product_details/screens/product_details_screen.dart';
-import 'package:mazzraati_vendor_app/features/barcode/screens/bar_code_generator_screen.dart';
+import 'package:provider/provider.dart';
 
 class ShopProductWidget extends StatefulWidget {
   final Product? productModel;
@@ -50,6 +52,9 @@ class _ProductWidgetState extends State<ShopProductWidget> {
 
   @override
   Widget build(BuildContext context) {
+    log("AAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    log(widget.productModel?.thumbnailFullUrl?.path ?? 'null');
+    log(widget.productModel?.thumbnail ?? 'null');
     String? baseUrl = Provider.of<SplashController>(context, listen: false)
         .baseUrls!
         .productImageUrl;

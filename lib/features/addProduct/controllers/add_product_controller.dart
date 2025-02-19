@@ -1116,6 +1116,10 @@ class AddProductController extends ChangeNotifier {
         'shipping_type': _shippingType,
         'shipping_capacity': _shippingCapacity,
         'minimum_delivery_limit': _minimumDeliveryLimit,
+        "shipping_cost": shippingCostController.text.isNotEmpty
+            ? double.parse(shippingCostController.text)
+            : 0.0,
+        "thumbnail": thumbnail,
         'product_type': productTypeIndex == 0 ? 'physical' : 'digital',
         'digital_product_type': productTypeIndex == 1
             ? (digitalProductTypeIndex == 0
@@ -1125,13 +1129,11 @@ class AddProductController extends ChangeNotifier {
         'code': _productCode.text.isEmpty ? null : _productCode.text,
         'minimum_order_qty': 1,
         'current_stock': 1,
-        'shipping_cost': 0.0,
         'multiply_qty': null,
         'colors': jsonEncode([]),
         'color_image': jsonEncode([]),
         'colors_active': false,
         'video_url': '',
-        'thumbnail': thumbnail,
         'meta_image': metaImage,
         'images': jsonEncode(productReturnImage ?? []),
         'lang': jsonEncode(['en', 'sa']),
