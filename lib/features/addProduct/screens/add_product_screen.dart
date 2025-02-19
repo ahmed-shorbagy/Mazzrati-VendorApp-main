@@ -240,6 +240,68 @@ class AddProductScreenState extends State<AddProductScreen>
                                           //     // ),
                                           //   ),
                                           // ),
+                                          // // const SizedBox(
+                                          //     height: Dimensions
+                                          //         .paddingSizeExtraSmall),
+
+                                          // Container(
+                                          //   padding: const EdgeInsets
+                                          //       .symmetric(
+                                          //       horizontal: Dimensions
+                                          //           .paddingSizeSmall),
+                                          //   decoration:
+                                          //       BoxDecoration(
+                                          //     color: Theme.of(
+                                          //             context)
+                                          //         .cardColor,
+                                          //     borderRadius:
+                                          //         BorderRadius.circular(
+                                          //             Dimensions
+                                          //                 .radiusDefault),
+                                          //     border: Border.all(
+                                          //         width: .5,
+                                          //         color: Theme.of(
+                                          //                 context)
+                                          //             .primaryColor
+                                          //             .withOpacity(
+                                          //                 .7)),
+                                          //   ),
+                                          //   child: DropdownButton<
+                                          //       int>(
+                                          //     value: resProvider
+                                          //         .brandIndex,
+                                          //     items: brandIds.map(
+                                          //         (int? value) {
+                                          //       return DropdownMenuItem<
+                                          //           int>(
+                                          //         value: brandIds
+                                          //             .indexOf(
+                                          //                 value),
+                                          //         child: Text(value !=
+                                          //                 0
+                                          //             ? resProvider
+                                          //                 .brandList![
+                                          //                     (brandIds.indexOf(value) -
+                                          //                         1)]
+                                          //                 .name!
+                                          //             : getTranslated(
+                                          //                 'select_brand',
+                                          //                 context)!),
+                                          //       );
+                                          //     }).toList(),
+                                          //     onChanged:
+                                          //         (int? value) {
+                                          //       resProvider
+                                          //           .setBrandIndex(
+                                          //               value,
+                                          //               true);
+                                          //       // resProvider.changeBrandSelectedIndex(value);
+                                          //     },
+                                          //     isExpanded: true,
+                                          //     underline:
+                                          //         const SizedBox(),
+                                          //   ),
+                                          // ),
                                           SizedBox(
                                             height: 240,
                                             child: _generateTabPage(
@@ -463,21 +525,17 @@ class AddProductScreenState extends State<AddProductScreen>
                                                                           .getTextColor(
                                                                               context)),
                                                                 ),
-                                                          items: resProvider
-                                                                      .categoryUnits !=
-                                                                  null
-                                                              ? resProvider
-                                                                  .categoryUnits!
+                                                          items:
+                                                              _getUnitsForCategory(
+                                                                      resProvider)
                                                                   .map((String
                                                                       value) {
-                                                                  return DropdownMenuItem<
-                                                                          String>(
-                                                                      value:
-                                                                          value,
-                                                                      child: Text(
-                                                                          value));
-                                                                }).toList()
-                                                              : [],
+                                                            return DropdownMenuItem<
+                                                                    String>(
+                                                                value: value,
+                                                                child: Text(
+                                                                    value));
+                                                          }).toList(),
                                                           onChanged: (val) {
                                                             unitValue = val;
                                                             setState(
@@ -965,6 +1023,39 @@ class AddProductScreenState extends State<AddProductScreen>
     //       TitleAndDescriptionWidget(resProvider: resProvider, index: index));
     // }
     return tabView.reversed.toList();
+  }
+
+  List<String> _getUnitsForCategory(AddProductController resProvider) {
+    // Check if a category is selected
+    if (resProvider.categoryIndex == 0) {
+      return [
+        'قطعة',
+        'كيلوجرام',
+        'طول'
+      ]; // Default units if no category selected
+    }
+
+    // Get the selected category name
+    String selectedCategoryName = resProvider
+            .categoryList![resProvider.categoryIndex! - 1].name
+            ?.toLowerCase() ??
+        '';
+
+    // Define units based on category
+    if (selectedCategoryName.contains('شتلات') ||
+        selectedCategoryName.contains('shetlat') ||
+        selectedCategoryName.contains('seedlings')) {
+      return ['طول', 'قطعة']; // Length, Piece for seedlings
+    } else if (selectedCategoryName.contains('فواكه') ||
+        selectedCategoryName.contains('fruit') ||
+        selectedCategoryName.contains('خضروات') ||
+        selectedCategoryName.contains('vegetable')) {
+      return ['كيلوجرام']; // Kilogram for fruits and vegetables
+    }
+
+    // Default units if category doesn't match specific conditions
+    return resProvider.categoryUnits ??
+        ['قطعة', 'كيلوجرام']; // Fallback to common units
   }
 }
 

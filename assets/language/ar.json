@@ -1454,5 +1454,8 @@
   "minimum_delivery_limit_hint": "اكتب هنا عدد الصناديق أو الجبات التي يمكنك شحنها وتوصيلها للمشتري",
   "please_enter_valid_number": "الرجاء إدخال رقم صحيح",
   "shipping_capacity_required": "سعة الشحن مطلوبة",
-  "minimum_delivery_required": "الحد الأدنى للتوصيل مطلوب"
+  "minimum_delivery_required": "الحد الأدنى للتوصيل مطلوب",
+  "product_status": "حالة المنتج",
+  "product_active": "نشط",
+  "product_inactive": "غير نشط"
 }
