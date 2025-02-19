@@ -23,8 +23,13 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen>
     with TickerProviderStateMixin {
   TabController? _tabController;
-  bool _isLocalActive = false;
-  bool _isFirstLoad = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
+    load(context);
+  }
 
   void load(BuildContext context) {
     Provider.of<ProductReviewController>(context, listen: false)
@@ -36,39 +41,26 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
   }
 
   @override
-  void initState() {
-    super.initState();
-    load(context);
-    _tabController = TabController(length: 2, initialIndex: 0, vsync: this);
-    _tabController?.addListener(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBarWidget(
-          title: getTranslated('product_details', context),
-          isBackButtonExist: true,
-          isSwitch: false,
-          isAction: true,
-          productSwitch: false,
-        ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            _isFirstLoad = true;
-            load(context);
-          },
-          child: Consumer<ProductDetailsController>(
-            builder: (context, productDetailsProvider, _) {
-              // Initialize local state from API response only on first load
-              if (_isFirstLoad &&
-                  productDetailsProvider.productDetails != null) {
-                _isLocalActive =
-                    productDetailsProvider.productDetails?.requestStatus == 1;
-                _isFirstLoad = false;
-              }
+      appBar: CustomAppBarWidget(
+        title: getTranslated('product_details', context),
+        isBackButtonExist: true,
+        isSwitch: false,
+        isAction: true,
+        productSwitch: false,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          load(context);
+        },
+        child: Consumer<ProductDetailsController>(
+          builder: (context, productDetailsProvider, _) {
+            final bool isActive =
+                productDetailsProvider.productDetails?.status == 1;
 
-              return Column(children: [
+            return Column(
+              children: [
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(
@@ -103,49 +95,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              _isLocalActive
+                              isActive
                                   ? getTranslated('product_active', context)!
                                   : getTranslated('product_inactive', context)!,
                               style: robotoRegular.copyWith(
-                                color: _isLocalActive
+                                color: isActive
                                     ? Theme.of(context).primaryColor
                                     : Theme.of(context).colorScheme.error,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Switch(
-                        value: _isLocalActive,
-                        onChanged: productDetailsProvider.isLoading
-                            ? null // Disable switch while loading
-                            : (value) {
-                                // Update local state immediately for responsive UI
-                                setState(() {
-                                  _isLocalActive = value;
-                                });
-
-                                // Then perform the API call
-                                productDetailsProvider
-                                    .productStatusOnOff(
-                                  context,
-                                  widget.productModel!.id,
-                                  value ? 1 : 0,
-                                )
-                                    .then((_) {
-                                  // If the API call fails, revert to the previous state
-                                  if (productDetailsProvider
-                                          .productDetails?.requestStatus !=
-                                      (value ? 1 : 0)) {
-                                    setState(() {
-                                      _isLocalActive = !value;
-                                    });
-                                  }
-                                });
-                              },
-                        activeColor: Theme.of(context).primaryColor,
-                        activeTrackColor:
-                            Theme.of(context).primaryColor.withOpacity(0.5),
                       ),
                       if (productDetailsProvider.isLoading)
                         const SizedBox(
@@ -154,6 +114,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
                           ),
+                        )
+                      else
+                        Switch(
+                          value: isActive,
+                          onChanged: (value) async {
+                            final success =
+                                await productDetailsProvider.productStatusOnOff(
+                              context,
+                              widget.productModel!.id,
+                              value ? 1 : 0,
+                            );
+
+                            if (success && mounted) {
+                              // No need to fetch product details again, as the local state is updated
+                              debugPrint(
+                                  'Product status after update: ${productDetailsProvider.productDetails?.status}');
+                            }
+                          },
+                          activeColor: Theme.of(context).primaryColor,
+                          activeTrackColor:
+                              Theme.of(context).primaryColor.withOpacity(0.5),
                         ),
                     ],
                   ),
@@ -191,16 +172,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
                   height: Dimensions.paddingSizeSmall,
                 ),
                 Expanded(
-                    child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    ProductDetailsWidget(productModel: widget.productModel),
-                    ProductReviewWidget(productModel: widget.productModel),
-                  ],
-                )),
-              ]);
-            },
-          ),
-        ));
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      ProductDetailsWidget(productModel: widget.productModel),
+                      ProductReviewWidget(productModel: widget.productModel),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 }

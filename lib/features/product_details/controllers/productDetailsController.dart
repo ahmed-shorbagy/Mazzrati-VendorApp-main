@@ -18,34 +18,52 @@ class ProductDetailsController extends ChangeNotifier {
 
   Future<void> getProductDetails(int? productId) async {
     _isLoading = true;
+    notifyListeners();
+
     ApiResponse apiResponse =
         await productDetailsServiceInterface.getProductDetails(productId);
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       _productDetails = Product.fromJson(apiResponse.response!.data);
-      _isLoading = false;
     } else {
-      _isLoading = false;
       ApiChecker.checkApi(apiResponse);
     }
+
+    _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> productStatusOnOff(
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  Future<bool> productStatusOnOff(
       BuildContext context, int? productId, int status) async {
+    setLoading(true);
+
     ApiResponse apiResponse = await productDetailsServiceInterface
         .productStatusOnOff(productId, status);
+
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
-      _productDetails!.status = status;
+      // Update the local state directly if the API call is successful
+      _productDetails?.status = status;
+
       showCustomSnackBarWidget(
-          getTranslated('status_updated_successfully', Get.context!),
-          Get.context!,
-          isError: false);
-      getProductDetails(productId);
+        getTranslated('status_updated_successfully', Get.context!),
+        Get.context!,
+        isError: false,
+      );
+
+      setLoading(false);
+      notifyListeners(); // Notify listeners to update the UI
+      return true;
     } else {
       ApiChecker.checkApi(apiResponse);
     }
-    notifyListeners();
+
+    setLoading(false);
+    return false;
   }
 }
