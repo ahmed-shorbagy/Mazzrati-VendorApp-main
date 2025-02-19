@@ -11,7 +11,6 @@ import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controll
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
-import 'package:path/path.dart' as path;
 import 'package:provider/provider.dart';
 
 import '../widgets/product_form/action_buttons.dart';
@@ -217,16 +216,8 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         discountType: provider.discountTypeIndex == 0 ? 'percent' : 'flat',
         taxModel: provider.taxTypeIndex == 0 ? 'include' : 'exclude',
         shippingType: provider.shippingType,
-        thumbnail: provider.pickedLogo != null
-            ? path.basename(provider.pickedLogo!.path)
-            : '',
-        thumbnailFullUrl: provider.pickedLogo != null
-            ? ImageFullUrl(
-                path: provider.pickedLogo!.path,
-                key: path.basename(provider.pickedLogo!.path),
-                status: 200,
-              )
-            : null,
+        thumbnail: '', // Will be set after image upload
+        thumbnailFullUrl: null, // Will be set after image upload
         shippingCapacity: shippingCapacity,
         minimumDeliveryLimit: minimumDeliveryLimit,
         shippingCost: provider.shippingCostController.text.isNotEmpty
@@ -257,16 +248,47 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         videoUrl: '',
       );
 
-      // Call addProduct method
-      provider.addProduct(
-        context,
-        product,
-        addProduct,
-        provider.pickedLogo?.path,
-        provider.pickedMeta?.path,
-        true,
-        [],
-      );
+      // First upload the thumbnail if it exists
+      if (provider.pickedLogo != null) {
+        provider.addProductImage(
+          context,
+          provider.thumbnail,
+          (bool isSuccess, String name, String type, String? colorCode) {
+            if (isSuccess && type == 'thumbnail') {
+              // Now that we have the server-side thumbnail name, update the product
+              product.thumbnail = name;
+              product.thumbnailFullUrl = ImageFullUrl(
+                path: provider.pickedLogo!.path,
+                key: name,
+                status: 200,
+              );
+
+              // Now call addProduct with the updated thumbnail
+              provider.addProduct(
+                context,
+                product,
+                addProduct,
+                name, // Pass the server-returned thumbnail name
+                null, // No meta image in this screen
+                true,
+                [],
+              );
+            }
+          },
+          update: widget.product != null,
+        );
+      } else if (widget.product != null) {
+        // If updating and no new thumbnail, use existing
+        provider.addProduct(
+          context,
+          product,
+          addProduct,
+          widget.product?.thumbnail,
+          null,
+          true,
+          [],
+        );
+      }
     }
   }
 
