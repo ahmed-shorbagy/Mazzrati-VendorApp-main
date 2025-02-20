@@ -50,6 +50,15 @@ class AddProductScreenState extends State<AddProductScreen>
   List<String> titleList = [];
   List<String> descriptionList = [];
 
+  String? selectedUnitType;
+  TextEditingController weightController = TextEditingController();
+  TextEditingController volumeController = TextEditingController();
+  TextEditingController lengthController = TextEditingController();
+  TextEditingController pieceController = TextEditingController();
+  TextEditingController cmController = TextEditingController();
+  TextEditingController meterController = TextEditingController();
+  TextEditingController literController = TextEditingController();
+
   Future<void> _load() async {
     Provider.of<AddProductController>(context, listen: false).resetCategory();
     String languageCode =
@@ -78,8 +87,6 @@ class AddProductScreenState extends State<AddProductScreen>
 
   @override
   void initState() {
-    // Logger().d(widget.product?.toJson().toString() ?? "");
-    // Logger().d(widget.product?.categoryIds.toString() ?? "");
     super.initState();
     _tabController = TabController(
         length: Provider.of<SplashController>(context, listen: false)
@@ -112,7 +119,6 @@ class AddProductScreenState extends State<AddProductScreen>
       }
       Provider.of<AddProductController>(context, listen: false)
           .getEditProduct(context, widget.product!.id);
-      // Provider.of<AddProductController>(context,listen: false).getProductImage(widget.product!.id.toString());
       Provider.of<AddProductController>(context, listen: false)
           .setValueForUnit(widget.product!.unit.toString());
       Provider.of<AddProductController>(context, listen: false)
@@ -133,6 +139,110 @@ class AddProductScreenState extends State<AddProductScreen>
               null);
       Provider.of<AddProductController>(context, listen: false)
           .emptyDigitalProductData();
+    }
+  }
+
+  Widget _buildUnitSelection(AddProductController resProvider) {
+    // Reset selectedUnitType if it's not in the current category's units
+    if (selectedUnitType != null &&
+        !resProvider.categoryUnits!.contains(selectedUnitType)) {
+      selectedUnitType = null;
+    }
+
+    return Padding(
+      padding:
+          const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            getTranslated('units', context)!,
+            style: robotoRegular.copyWith(
+              color: ColorResources.titleColor(context),
+              fontSize: Dimensions.fontSizeDefault,
+            ),
+          ),
+          const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+          if (resProvider.categoryUnits != null)
+            DropdownButton<String>(
+              value: selectedUnitType,
+              items: resProvider.categoryUnits!.map((String unit) {
+                return DropdownMenuItem<String>(
+                  value: unit,
+                  child: Text(unit),
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                setState(() {
+                  selectedUnitType = value;
+                  // Set the unitValue in the provider when unit is selected
+                  resProvider.setValueForUnit(value);
+                });
+              },
+              hint: Text(getTranslated('select_unit', context)!),
+              isExpanded: true,
+              underline: Container(
+                height: 1,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          if (selectedUnitType != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
+              child: TextFormField(
+                controller: _getControllerForUnit(selectedUnitType!),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  hintText: 'أدخل ${_getLabelForUnit(selectedUnitType!)}',
+                  suffixText: selectedUnitType,
+                  border: OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(Dimensions.radiusDefault),
+                    borderSide: BorderSide(
+                      width: .5,
+                      color: Theme.of(context).primaryColor.withOpacity(.7),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  TextEditingController _getControllerForUnit(String unit) {
+    switch (unit) {
+      case 'كيلو':
+        return weightController;
+      case 'لتر':
+        return literController;
+      case 'متر':
+        return meterController;
+      case 'سم':
+        return cmController;
+      case 'قطعة':
+        return pieceController;
+      default:
+        return TextEditingController();
+    }
+  }
+
+  String _getLabelForUnit(String unit) {
+    switch (unit) {
+      case 'كيلو':
+        return 'الوزن';
+      case 'لتر':
+        return 'الحجم';
+      case 'متر':
+        return 'الطول';
+      case 'سم':
+        return 'الطول';
+      case 'قطعة':
+        return 'القطع';
+      default:
+        return '';
     }
   }
 
@@ -175,10 +285,6 @@ class AddProductScreenState extends State<AddProductScreen>
                         builder: (context, splashController, _) {
                         return Column(
                           children: [
-                            // Padding(
-                            //     padding: const EdgeInsets.symmetric(
-                            //         horizontal: Dimensions.paddingSizeDefault),
-                            //     child: AddProductTitleBar()),
                             Expanded(
                               child: SingleChildScrollView(
                                 child: Column(
@@ -187,130 +293,12 @@ class AddProductScreenState extends State<AddProductScreen>
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       AddProductSectionWidget(
-                                        // title: getTranslated(
-                                        //     'product_name', context)!,
                                         title: '',
                                         childrens: [
-                                          // SizedBox(
-                                          //   height: 50,
-                                          //   width: MediaQuery.of(context)
-                                          //       .size
-                                          //       .width,
-                                          //   child: Padding(
-                                          //     padding:
-                                          //         const EdgeInsets.symmetric(
-                                          //             horizontal: Dimensions
-                                          //                 .paddingSizeSmall),
-                                          //     child: _generateTabChildren()[0],
-                                          //     // child: TabBar(
-                                          //     //   tabAlignment:
-                                          //     //       TabAlignment.start,
-                                          //     //   isScrollable: true,
-                                          //     //   dividerColor:
-                                          //     //       Colors.transparent,
-                                          //     //   controller: _tabController,
-                                          //     //   indicatorColor:
-                                          //     //       Theme.of(context)
-                                          //     //           .primaryColor,
-                                          //     //   indicatorWeight: 5,
-                                          //     //   indicator: BoxDecoration(
-                                          //     //       border: Border(
-                                          //     //           bottom: BorderSide(
-                                          //     //               color: Theme.of(
-                                          //     //                       context)
-                                          //     //                   .primaryColor,
-                                          //     //               width: 2))),
-                                          //     //   labelColor: Theme.of(context)
-                                          //     //       .primaryColor,
-                                          //     //   unselectedLabelColor:
-                                          //     //       ColorResources.getTextColor(
-                                          //     //           context),
-                                          //     //   unselectedLabelStyle:
-                                          //     //       robotoRegular.copyWith(
-                                          //     //           color: Theme.of(context)
-                                          //     //               .disabledColor,
-                                          //     //           fontSize: Dimensions
-                                          //     //               .fontSizeLarge),
-                                          //     //   labelStyle: robotoBold.copyWith(
-                                          //     //       fontSize: Dimensions
-                                          //     //           .fontSizeLarge,
-                                          //     //       color: Theme.of(context)
-                                          //     //           .primaryColor),
-                                          //     //   tabs: _generateTabChildren(),
-                                          //     // ),
-                                          //   ),
-                                          // ),
-                                          // // const SizedBox(
-                                          //     height: Dimensions
-                                          //         .paddingSizeExtraSmall),
-
-                                          // Container(
-                                          //   padding: const EdgeInsets
-                                          //       .symmetric(
-                                          //       horizontal: Dimensions
-                                          //           .paddingSizeSmall),
-                                          //   decoration:
-                                          //       BoxDecoration(
-                                          //     color: Theme.of(
-                                          //             context)
-                                          //         .cardColor,
-                                          //     borderRadius:
-                                          //         BorderRadius.circular(
-                                          //             Dimensions
-                                          //                 .radiusDefault),
-                                          //     border: Border.all(
-                                          //         width: .5,
-                                          //         color: Theme.of(
-                                          //                 context)
-                                          //             .primaryColor
-                                          //             .withOpacity(
-                                          //                 .7)),
-                                          //   ),
-                                          //   child: DropdownButton<
-                                          //       int>(
-                                          //     value: resProvider
-                                          //         .brandIndex,
-                                          //     items: brandIds.map(
-                                          //         (int? value) {
-                                          //       return DropdownMenuItem<
-                                          //           int>(
-                                          //         value: brandIds
-                                          //             .indexOf(
-                                          //                 value),
-                                          //         child: Text(value !=
-                                          //                 0
-                                          //             ? resProvider
-                                          //                 .brandList![
-                                          //                     (brandIds.indexOf(value) -
-                                          //                         1)]
-                                          //                 .name!
-                                          //             : getTranslated(
-                                          //                 'select_brand',
-                                          //                 context)!),
-                                          //       );
-                                          //     }).toList(),
-                                          //     onChanged:
-                                          //         (int? value) {
-                                          //       resProvider
-                                          //           .setBrandIndex(
-                                          //               value,
-                                          //               true);
-                                          //       // resProvider.changeBrandSelectedIndex(value);
-                                          //     },
-                                          //     isExpanded: true,
-                                          //     underline:
-                                          //         const SizedBox(),
-                                          //   ),
-                                          // ),
                                           SizedBox(
                                             height: 240,
                                             child: _generateTabPage(
                                                 resProvider)[0],
-                                            // child: TabBarView(
-                                            //   controller: _tabController,
-                                            //   children:
-                                            //       _generateTabPage(resProvider),
-                                            // ),
                                           ),
                                         ],
                                       ),
@@ -331,7 +319,90 @@ class AddProductScreenState extends State<AddProductScreen>
                                                       horizontal: Dimensions
                                                           .paddingSizeDefault),
                                               child: SelectCategoryWidget(
-                                                  product: widget.product),
+                                                product: widget.product,
+                                                onCategoryChanged: () {
+                                                  // Reset selectedUnitType when category changes
+                                                  setState(() {
+                                                    selectedUnitType = null;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: Dimensions
+                                                    .paddingSizeDefault,
+                                                vertical:
+                                                    Dimensions.paddingSizeSmall,
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    getTranslated(
+                                                        'is_organic', context)!,
+                                                    style:
+                                                        robotoRegular.copyWith(
+                                                      fontSize: Dimensions
+                                                          .fontSizeDefault,
+                                                      color: ColorResources
+                                                          .titleColor(context),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                      height: Dimensions
+                                                          .paddingSizeExtraSmall),
+                                                  Row(
+                                                    children: [
+                                                      Radio(
+                                                        value: false,
+                                                        groupValue: resProvider
+                                                            .isOrganic,
+                                                        onChanged:
+                                                            (bool? value) {
+                                                          resProvider
+                                                              .setIsOrganic(
+                                                                  value ??
+                                                                      false);
+                                                        },
+                                                        activeColor:
+                                                            Theme.of(context)
+                                                                .primaryColor,
+                                                      ),
+                                                      Text(
+                                                        getTranslated(
+                                                            'no', context)!,
+                                                        style: robotoRegular,
+                                                      ),
+                                                      const SizedBox(
+                                                          width: Dimensions
+                                                              .paddingSizeDefault),
+                                                      Radio(
+                                                        value: true,
+                                                        groupValue: resProvider
+                                                            .isOrganic,
+                                                        onChanged:
+                                                            (bool? value) {
+                                                          resProvider
+                                                              .setIsOrganic(
+                                                                  value ??
+                                                                      true);
+                                                        },
+                                                        activeColor:
+                                                            Theme.of(context)
+                                                                .primaryColor,
+                                                      ),
+                                                      Text(
+                                                        getTranslated(
+                                                            'yes', context)!,
+                                                        style: robotoRegular,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                             Provider.of<SplashController>(
                                                             context,
@@ -347,95 +418,7 @@ class AddProductScreenState extends State<AddProductScreen>
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
-                                                      children: [
-                                                        // Row(
-                                                        //   children: [
-                                                        //     Text(
-                                                        //         getTranslated(
-                                                        //             'select_brand',
-                                                        //             context)!,
-                                                        //         style: robotoRegular.copyWith(
-                                                        //             color: ColorResources
-                                                        //                 .titleColor(
-                                                        //                     context),
-                                                        //             fontSize:
-                                                        //                 Dimensions
-                                                        //                     .fontSizeDefault)),
-                                                        //     Text(
-                                                        //       '*',
-                                                        //       style: robotoBold.copyWith(
-                                                        //           color: ColorResources
-                                                        //               .mainCardFourColor(
-                                                        //                   context),
-                                                        //           fontSize:
-                                                        //               Dimensions
-                                                        //                   .fontSizeDefault),
-                                                        //     ),
-                                                        //   ],
-                                                        // ),
-                                                        // // const SizedBox(
-                                                        //     height: Dimensions
-                                                        //         .paddingSizeExtraSmall),
-
-                                                        // Container(
-                                                        //   padding: const EdgeInsets
-                                                        //       .symmetric(
-                                                        //       horizontal: Dimensions
-                                                        //           .paddingSizeSmall),
-                                                        //   decoration:
-                                                        //       BoxDecoration(
-                                                        //     color: Theme.of(
-                                                        //             context)
-                                                        //         .cardColor,
-                                                        //     borderRadius:
-                                                        //         BorderRadius.circular(
-                                                        //             Dimensions
-                                                        //                 .radiusDefault),
-                                                        //     border: Border.all(
-                                                        //         width: .5,
-                                                        //         color: Theme.of(
-                                                        //                 context)
-                                                        //             .primaryColor
-                                                        //             .withOpacity(
-                                                        //                 .7)),
-                                                        //   ),
-                                                        //   child: DropdownButton<
-                                                        //       int>(
-                                                        //     value: resProvider
-                                                        //         .brandIndex,
-                                                        //     items: brandIds.map(
-                                                        //         (int? value) {
-                                                        //       return DropdownMenuItem<
-                                                        //           int>(
-                                                        //         value: brandIds
-                                                        //             .indexOf(
-                                                        //                 value),
-                                                        //         child: Text(value !=
-                                                        //                 0
-                                                        //             ? resProvider
-                                                        //                 .brandList![
-                                                        //                     (brandIds.indexOf(value) -
-                                                        //                         1)]
-                                                        //                 .name!
-                                                        //             : getTranslated(
-                                                        //                 'select_brand',
-                                                        //                 context)!),
-                                                        //       );
-                                                        //     }).toList(),
-                                                        //     onChanged:
-                                                        //         (int? value) {
-                                                        //       resProvider
-                                                        //           .setBrandIndex(
-                                                        //               value,
-                                                        //               true);
-                                                        //       // resProvider.changeBrandSelectedIndex(value);
-                                                        //     },
-                                                        //     isExpanded: true,
-                                                        //     underline:
-                                                        //         const SizedBox(),
-                                                        //   ),
-                                                        // ),
-                                                      ],
+                                                      children: [],
                                                     ),
                                                   )
                                                 : const SizedBox(),
@@ -443,118 +426,10 @@ class AddProductScreenState extends State<AddProductScreen>
                                                 height: Dimensions
                                                     .paddingSizeSmall),
                                           ],
-                                          resProvider.productTypeIndex == 0 &&
-                                                  resProvider.categoryIndex != 0
-                                              ? Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: Dimensions
-                                                          .paddingSizeDefault),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                              getTranslated(
-                                                                  'select_unit',
-                                                                  context)!,
-                                                              style: robotoRegular.copyWith(
-                                                                  color: ColorResources
-                                                                      .titleColor(
-                                                                          context),
-                                                                  fontSize:
-                                                                      Dimensions
-                                                                          .fontSizeDefault)),
-                                                          Text(
-                                                            '*',
-                                                            style: robotoBold.copyWith(
-                                                                color: ColorResources
-                                                                    .mainCardFourColor(
-                                                                        context),
-                                                                fontSize: Dimensions
-                                                                    .fontSizeDefault),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                          height: Dimensions
-                                                              .paddingSizeExtraSmall),
-                                                      Container(
-                                                        padding: const EdgeInsets
-                                                            .symmetric(
-                                                            horizontal: Dimensions
-                                                                .paddingSizeSmall),
-                                                        decoration: BoxDecoration(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .cardColor,
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                    Dimensions
-                                                                        .radiusDefault),
-                                                            border: Border.all(
-                                                                width: .5,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .primaryColor
-                                                                    .withOpacity(
-                                                                        .7))),
-                                                        child: DropdownButton<
-                                                            String>(
-                                                          hint: resProvider
-                                                                      .unitValue ==
-                                                                  null
-                                                              ? Text(
-                                                                  getTranslated(
-                                                                      'select_unit',
-                                                                      context)!,
-                                                                  style: robotoBold.copyWith(
-                                                                      color: Theme.of(
-                                                                              context)
-                                                                          .textTheme
-                                                                          .bodySmall
-                                                                          ?.color))
-                                                              : Text(
-                                                                  resProvider
-                                                                      .unitValue!,
-                                                                  style: TextStyle(
-                                                                      color: ColorResources
-                                                                          .getTextColor(
-                                                                              context)),
-                                                                ),
-                                                          items:
-                                                              _getUnitsForCategory(
-                                                                      resProvider)
-                                                                  .map((String
-                                                                      value) {
-                                                            return DropdownMenuItem<
-                                                                    String>(
-                                                                value: value,
-                                                                child: Text(
-                                                                    value));
-                                                          }).toList(),
-                                                          onChanged: (val) {
-                                                            unitValue = val;
-                                                            setState(
-                                                              () {
-                                                                resProvider
-                                                                    .setValueForUnit(
-                                                                        val);
-                                                              },
-                                                            );
-                                                          },
-                                                          isExpanded: true,
-                                                          underline:
-                                                              const SizedBox(),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                              : const SizedBox(),
+                                          if (resProvider.productTypeIndex ==
+                                                  0 &&
+                                              resProvider.categoryIndex != 0)
+                                            _buildUnitSelection(resProvider),
                                           const SizedBox(
                                               height: Dimensions
                                                   .paddingSizeExtraSmall),
@@ -570,85 +445,6 @@ class AddProductScreenState extends State<AddProductScreen>
                                           const SizedBox(
                                               height: Dimensions
                                                   .paddingSizeExtraSmall),
-                                          // //!!!!!!!!!!!!!!!!! generate code !!!!!!!!!
-                                          // Container(
-                                          //   padding: const EdgeInsets.fromLTRB(
-                                          //       Dimensions.paddingSizeDefault,
-                                          //       0,
-                                          //       Dimensions.paddingSizeDefault,
-                                          //       0),
-                                          //   child: Column(
-                                          //     children: [
-                                          //       Row(
-                                          //         children: [
-                                          //           // Text(getTranslated('product_code_sku', context)!, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault)),
-                                          //           // Text('*',style: robotoBold.copyWith(color: ColorResources.mainCardFourColor(context),
-                                          //           //     fontSize: Dimensions.fontSizeDefault),),
-                                          //           const Spacer(),
-                                          //           InkWell(
-                                          //               splashColor:
-                                          //                   Colors.transparent,
-                                          //               onTap: () {
-                                          //                 String generateSKU() {
-                                          //                   const chars =
-                                          //                       'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                                          //                   final random =
-                                          //                       Random();
-                                          //                   String sku = '';
-
-                                          //                   for (int i = 0;
-                                          //                       i < 6;
-                                          //                       i++) {
-                                          //                     sku += chars[random
-                                          //                         .nextInt(chars
-                                          //                             .length)];
-                                          //                   }
-                                          //                   return sku;
-                                          //                 }
-
-                                          //                 String code =
-                                          //                     generateSKU();
-                                          //                 // var rng = Random();
-                                          //                 // var code = rng.nextInt(900000) + 100000;
-                                          //                 resProvider
-                                          //                         .productCode
-                                          //                         .text =
-                                          //                     code.toString();
-                                          //               },
-                                          //               child: Text(
-                                          //                   getTranslated(
-                                          //                       'generate_code',
-                                          //                       context)!,
-                                          //                   style: robotoRegular.copyWith(
-                                          //                       fontSize: Dimensions
-                                          //                           .fontSizeDefault,
-                                          //                       color: ColorResources
-                                          //                           .mainCardFourColor(
-                                          //                               context)))),
-                                          //         ],
-                                          //       ),
-                                          //       const SizedBox(
-                                          //           height: Dimensions
-                                          //               .paddingSizeExtraSmall),
-                                          //       CustomTextFieldWidget(
-                                          //         formProduct: true,
-                                          //         required: true,
-                                          //         border: true,
-                                          //         controller:
-                                          //             resProvider.productCode,
-                                          //         textInputAction:
-                                          //             TextInputAction.next,
-                                          //         textInputType:
-                                          //             TextInputType.text,
-                                          //         isAmount: false,
-                                          //         hintText: getTranslated(
-                                          //             'product_code_sku',
-                                          //             context)!,
-                                          //       ),
-                                          //     ],
-                                          //   ),
-                                          // ),
-                                          //!!!!!!!!! end of product code sku !!!!!!!!!!
                                           const SizedBox(height: 15)
                                         ],
                                       ),
@@ -682,34 +478,6 @@ class AddProductScreenState extends State<AddProductScreen>
                                                   null
                                               ? null
                                               : () {
-                                                  // List<String> titleList =
-                                                  //     resProvider
-                                                  //         .titleControllerList
-                                                  //         .map((controller) =>
-                                                  //             controller.text
-                                                  //                 .trim())
-                                                  //         .toList()
-                                                  //         .reversed
-                                                  //         .toList();
-                                                  // titleList = List.filled(
-                                                  //     titleList.length,
-                                                  //     titleList[0]);
-                                                  // List<String> descriptionList =
-                                                  //     resProvider
-                                                  //         .descriptionControllerList
-                                                  //         .map((controller) =>
-                                                  //             controller.text
-                                                  //                 .trim())
-                                                  //         .toList()
-                                                  //         .reversed
-                                                  //         .toList();
-                                                  // descriptionList = List.filled(
-                                                  //     descriptionList.length,
-                                                  //     descriptionList[0]);
-                                                  // dev.log(titleList.toString());
-                                                  // dev.log(descriptionList
-                                                  //     .toString());
-                                                  // Initialize the variables as true, assuming there are blank fields initially
                                                   bool haveBlankTitle = true;
                                                   bool haveBlankDes = false;
 
@@ -718,18 +486,9 @@ class AddProductScreenState extends State<AddProductScreen>
                                                           .titleControllerList) {
                                                     if (title.text.isNotEmpty) {
                                                       haveBlankTitle = false;
-                                                      break; // Exit loop early if any title field is not empty
+                                                      break;
                                                     }
                                                   }
-
-                                                  // for (TextEditingController des
-                                                  //     in resProvider
-                                                  //         .descriptionControllerList) {
-                                                  //   if (des.text.isNotEmpty) {
-                                                  //     haveBlankDes = false;
-                                                  //     break; // Exit loop early if any description field is not empty
-                                                  //   }
-                                                  // }
 
                                                   String generateSKU() {
                                                     const chars =
@@ -751,54 +510,9 @@ class AddProductScreenState extends State<AddProductScreen>
                                                       widget.isFromSuggestion ==
                                                           true) {
                                                     String code = generateSKU();
-                                                    // var rng = Random();
-                                                    // var code = rng.nextInt(900000) + 100000;
                                                     resProvider.productCode
                                                         .text = code.toString();
                                                   }
-                                                  // bool haveBlankTitle =
-                                                  //     false;
-                                                  // bool haveBlankDes = false;
-                                                  // if (resProvider
-                                                  //         .titleControllerList[
-                                                  //             0]
-                                                  //         .text
-                                                  //         .isEmpty &&
-                                                  //     resProvider
-                                                  //         .titleControllerList[
-                                                  //             0]
-                                                  //         .text
-                                                  //         .isEmpty) {
-                                                  //   haveBlankTitle = true;
-                                                  // }
-                                                  // if (resProvider
-                                                  //         .descriptionControllerList[
-                                                  //             0]
-                                                  //         .text
-                                                  //         .isEmpty &&
-                                                  //     resProvider
-                                                  //         .descriptionControllerList[
-                                                  //             0]
-                                                  //         .text
-                                                  //         .isEmpty) {
-                                                  //   haveBlankDes = true;
-                                                  // }
-                                                  // for (TextEditingController title
-                                                  //     in resProvider
-                                                  //         .titleControllerList) {
-                                                  //   if (title.text.isNotEmpty) {
-                                                  //     haveBlankTitle = true;
-                                                  //     break;
-                                                  //   }
-                                                  // }
-                                                  // for (TextEditingController des
-                                                  //     in resProvider
-                                                  //         .descriptionControllerList) {
-                                                  //   if (des.text.isNotEmpty) {
-                                                  //     haveBlankDes = true;
-                                                  //     break;
-                                                  //   }
-                                                  // }
 
                                                   if (haveBlankTitle) {
                                                     showCustomSnackBarWidget(
@@ -809,49 +523,18 @@ class AddProductScreenState extends State<AddProductScreen>
                                                         sanckBarType:
                                                             SnackBarType
                                                                 .warning);
-                                                  } else if (haveBlankDes) {
-                                                    showCustomSnackBarWidget(
-                                                        getTranslated(
-                                                            'please_input_all_des',
-                                                            context),
-                                                        context,
-                                                        sanckBarType:
-                                                            SnackBarType
-                                                                .warning);
-                                                  }
-                                                  // else if ((resProvider.productTypeIndex == 1 &&resProvider.digitalProductTypeIndex == 1 &&
-                                                  //     resProvider.selectedFileForImport == null) && widget.product == null ) {
-                                                  //   showCustomSnackBarWidget(getTranslated('please_choose_digital_product',context),context,  sanckBarType: SnackBarType.warning);
-                                                  // }
-                                                  else if (resProvider
+                                                  } else if (resProvider
                                                           .categoryIndex ==
                                                       0) {
                                                     showCustomSnackBarWidget(
-                                                        getTranslated(
-                                                            'select_a_category',
-                                                            context),
-                                                        context,
-                                                        sanckBarType:
-                                                            SnackBarType
-                                                                .warning);
-                                                  }
-                                                  //else if (resProvider.brandIndex == 0 &&
-                                                  //     Provider.of<SplashController>(
-                                                  //                 context,
-                                                  //                 listen: false)
-                                                  //             .configModel!
-                                                  //             .brandSetting ==
-                                                  //         "1") {
-                                                  //   showCustomSnackBarWidget(
-                                                  //       getTranslated(
-                                                  //           'select_a_brand',
-                                                  //           context),
-                                                  //       context,
-                                                  //       sanckBarType:
-                                                  //           SnackBarType
-                                                  //               .warning);
-                                                  // }
-                                                  else if (resProvider
+                                                      getTranslated(
+                                                          'select_a_category',
+                                                          context),
+                                                      context,
+                                                      sanckBarType:
+                                                          SnackBarType.warning,
+                                                    );
+                                                  } else if (resProvider
                                                               .unitValue ==
                                                           '' ||
                                                       resProvider.unitValue ==
@@ -867,23 +550,7 @@ class AddProductScreenState extends State<AddProductScreen>
                                                         sanckBarType:
                                                             SnackBarType
                                                                 .warning);
-                                                  }
-                                                  // else if (resProvider
-                                                  //             .productCode
-                                                  //             .text ==
-                                                  //         '' ||
-                                                  //     resProvider.productCode
-                                                  //         .text.isEmpty) {
-                                                  //   showCustomSnackBarWidget(
-                                                  //       getTranslated(
-                                                  //           'product_code_is_required',
-                                                  //           context),
-                                                  //       context,
-                                                  //       sanckBarType:
-                                                  //           SnackBarType
-                                                  //               .warning);
-                                                  // }
-                                                  else if (resProvider
+                                                  } else if (resProvider
                                                               .productCode
                                                               .text
                                                               .length <
@@ -908,10 +575,6 @@ class AddProductScreenState extends State<AddProductScreen>
                                                               .text
                                                               .trim());
                                                     }
-                                                    // if(resProvider.productTypeIndex == 1 &&resProvider.digitalProductTypeIndex == 1 &&
-                                                    //     resProvider.selectedFileForImport != null ) {
-                                                    //   resProvider.uploadDigitalProduct(Provider.of<AuthController>(context,listen: false).getUserToken());
-                                                    // }
                                                     resProvider
                                                         .setSelectedPageIndex(1,
                                                             isUpdate: true);
@@ -990,72 +653,13 @@ class AddProductScreenState extends State<AddProductScreen>
             .name!
             .capitalize(),
         style: robotoBold.copyWith()));
-
-    // for (int index = 0;
-    //     index <
-    //         Provider.of<SplashController>(context, listen: false)
-    //             .configModel!
-    //             .languageList!
-    //             .length;
-    //     index++) {
-    //   tabs.add(Text(
-    //       Provider.of<SplashController>(context, listen: false)
-    //           .configModel!
-    //           .languageList![index]
-    //           .name!
-    //           .capitalize(),
-    //       style: robotoBold.copyWith()));
-    // }
     return tabs.reversed.toList();
   }
 
   List<Widget> _generateTabPage(AddProductController resProvider) {
     List<Widget> tabView = [];
     tabView.add(TitleAndDescriptionWidget(resProvider: resProvider, index: 1));
-    // for (int index = 0;
-    //     index <
-    //         Provider.of<SplashController>(context, listen: false)
-    //             .configModel!
-    //             .languageList!
-    //             .length;
-    //     index++) {
-    //   tabView.add(
-    //       TitleAndDescriptionWidget(resProvider: resProvider, index: index));
-    // }
     return tabView.reversed.toList();
-  }
-
-  List<String> _getUnitsForCategory(AddProductController resProvider) {
-    // Check if a category is selected
-    if (resProvider.categoryIndex == 0) {
-      return [
-        'قطعة',
-        'كيلوجرام',
-        'طول'
-      ]; // Default units if no category selected
-    }
-
-    // Get the selected category name
-    String selectedCategoryName = resProvider
-            .categoryList![resProvider.categoryIndex! - 1].name
-            ?.toLowerCase() ??
-        '';
-
-    // Define units based on category
-    if (selectedCategoryName.contains('شتلات') ||
-        selectedCategoryName.contains('shetlat') ||
-        selectedCategoryName.contains('seedlings')) {
-      return ['طول', 'قطعة']; // Length, Piece for seedlings
-    } else if (selectedCategoryName.contains('فواكه') ||
-        selectedCategoryName.contains('fruit') ||
-        selectedCategoryName.contains('خضروات') ||
-        selectedCategoryName.contains('vegetable')) {
-      return ['كيلوجرام']; // Kilogram for fruits and vegetables
-    }
-
-    // Default units if category doesn't match specific conditions
-    return resProvider.categoryUnits ??
-        ['قطعة', 'كيلوجرام']; // Fallback to common units
   }
 }
 

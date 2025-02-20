@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/confirmation_dialog_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_dialog_widget.dart';
 import 'package:mazzraati_vendor_app/features/auction/screens/auction_list_screen.dart';
+import 'package:mazzraati_vendor_app/features/home/screens/home_page_screen.dart';
+import 'package:mazzraati_vendor_app/features/menu/widgets/menu_widget.dart';
+import 'package:mazzraati_vendor_app/features/order/screens/order_screen.dart';
 import 'package:mazzraati_vendor_app/features/product/screens/product_list_screen.dart';
+import 'package:mazzraati_vendor_app/features/profile/controllers/profile_controller.dart';
 import 'package:mazzraati_vendor_app/helper/network_info.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
-import 'package:mazzraati_vendor_app/features/profile/controllers/profile_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/features/home/screens/home_page_screen.dart';
-import 'package:mazzraati_vendor_app/features/menu/widgets/menu_widget.dart';
-import 'package:mazzraati_vendor_app/features/order/screens/order_screen.dart';
+import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

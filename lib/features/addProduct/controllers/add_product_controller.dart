@@ -41,6 +41,15 @@ class AddProductController extends ChangeNotifier {
   late TextEditingController _shippingCapacityController;
   late TextEditingController _minDeliveryLimitController;
 
+  // Add new controllers for unit fields
+  final TextEditingController weightController = TextEditingController();
+  final TextEditingController volumeController = TextEditingController();
+  final TextEditingController lengthController = TextEditingController();
+  final TextEditingController pieceController = TextEditingController();
+
+  String? _selectedUnitType;
+  String? get selectedUnitType => _selectedUnitType;
+
   AddProductController({required this.shopServiceInterface}) {
     _shippingCapacityController = TextEditingController();
     _minDeliveryLimitController = TextEditingController();
@@ -50,6 +59,8 @@ class AddProductController extends ChangeNotifier {
   int get totalQuantity => _totalQuantity;
   String? _unitValue;
   String? get unitValue => _unitValue;
+  double? _unitQuantity;
+  double? get unitQuantity => _unitQuantity;
   List<AttributeModel>? _attributeList = [];
   int _discountTypeIndex = 0;
   int _taxTypeIndex = 0;
@@ -177,6 +188,9 @@ class AddProductController extends ChangeNotifier {
   String _discountedPrice = '0';
   String get discountedPrice => _discountedPrice;
 
+  bool _isOrganic = false;
+  bool get isOrganic => _isOrganic;
+
   int? _shippingCapacity;
   int? _minimumDeliveryLimit;
 
@@ -187,6 +201,97 @@ class AddProductController extends ChangeNotifier {
       _shippingCapacityController;
   TextEditingController get minDeliveryLimitController =>
       _minDeliveryLimitController;
+
+  final TextEditingController unitQuantityController = TextEditingController();
+
+  void setUnitQuantity(String value) {
+    if (value.isNotEmpty) {
+      try {
+        _unitQuantity = double.parse(value);
+        notifyListeners();
+      } catch (e) {
+        _unitQuantity = null;
+        notifyListeners();
+      }
+    } else {
+      _unitQuantity = null;
+      notifyListeners();
+    }
+  }
+
+  List<String> getCategorySpecificUnits(int? categoryId) {
+    if (categoryId == null) return [];
+
+    String languageCode =
+        Provider.of<LocalizationController>(Get.context!, listen: false)
+                    .locale
+                    .countryCode ==
+                'US'
+            ? 'en'
+            : 'ar';
+
+    // Define units based on category
+    switch (categoryId) {
+      case 21: // Dates
+        return languageCode == 'ar'
+            ? ['كيلو', 'صندوق', 'حبة']
+            : ['kg', 'box', 'piece'];
+
+      case 22: // Seedlings
+        return languageCode == 'ar' ? ['قطعة', 'صينية'] : ['piece', 'tray'];
+
+      case 23: // Vegetables
+        return languageCode == 'ar'
+            ? ['كيلو', 'صندوق', 'ربطة']
+            : ['kg', 'box', 'bundle'];
+
+      case 24: // Fertilizers
+        return languageCode == 'ar'
+            ? ['كيلو', 'لتر', 'كيس']
+            : ['kg', 'liter', 'bag'];
+
+      case 25: // Honey
+        return languageCode == 'ar'
+            ? ['كيلو', 'جرام', 'عبوة']
+            : ['kg', 'gram', 'jar'];
+
+      case 26: // Oils
+        return languageCode == 'ar'
+            ? ['لتر', 'جالون', 'عبوة']
+            : ['liter', 'gallon', 'bottle'];
+
+      default:
+        return languageCode == 'ar'
+            ? ['كيلو', 'قطعة', 'صندوق']
+            : ['kg', 'piece', 'box'];
+    }
+  }
+
+  void setCategoryIndex(int? index, bool notify, {Product? product}) async {
+    _categoryIndex = index;
+    if (notify) {
+      _subCategoryIndex = 0;
+      _subSubCategoryIndex = 0;
+      _categoryUnits = [];
+      _unitValue = null;
+      _unitQuantity = null;
+      unitQuantityController.clear();
+
+      if (_categoryIndex != 0 && _categoryIndex != null) {
+        int categoryId = _categoryList![_categoryIndex! - 1].id!;
+        _categoryUnits = getCategorySpecificUnits(categoryId);
+      }
+      notifyListeners();
+    }
+  }
+
+  void setValueForUnit(String? setValue) {
+    _unitValue = setValue;
+    _selectedUnitType = setValue;
+    _unitQuantity = null;
+    unitQuantityController.clear();
+    notifyListeners();
+  }
 
   void setShippingType(String type) {
     _shippingType = type;
@@ -811,159 +916,6 @@ class AddProductController extends ChangeNotifier {
     }
   }
 
-  void setCategoryIndex(int? index, bool notify, {Product? product}) async {
-    _categoryIndex = index;
-    if (notify) {
-      _subCategoryIndex = 0;
-      _subSubCategoryIndex = 0;
-      _categoryUnits = [];
-
-      if (_categoryIndex != 0) {
-        // Get the selected category ID
-        int categoryId = _categoryList![_categoryIndex! - 1].id!;
-
-        // Get the current language
-        String languageCode = Provider.of<LocalizationController>(Get.context!,
-                        listen: false)
-                    .locale
-                    .countryCode ==
-                'US'
-            ? 'en'
-            : Provider.of<LocalizationController>(Get.context!, listen: false)
-                .locale
-                .countryCode!
-                .toLowerCase();
-
-        // Define units based on language
-        Map<String, String> unitTranslations = {
-          'kg': languageCode == 'sa' ? 'كيلوجرام' : 'kg',
-          'box': languageCode == 'sa' ? 'صندوق' : 'box',
-          'ton': languageCode == 'sa' ? 'طن' : 'ton',
-          'piece': languageCode == 'sa' ? 'قطعة' : 'piece',
-          'seedling': languageCode == 'sa' ? 'شتلة' : 'seedling',
-          'tray': languageCode == 'sa' ? 'صينية' : 'tray',
-          'bag': languageCode == 'sa' ? 'كيس' : 'bag',
-          'liter': languageCode == 'sa' ? 'لتر' : 'liter',
-          'bundle': languageCode == 'sa' ? 'حزمة' : 'bundle',
-          'single': languageCode == 'sa' ? 'حبة' : 'piece',
-          'gram': languageCode == 'sa' ? 'جرام' : 'gram',
-          'jar': languageCode == 'sa' ? 'عبوة' : 'jar',
-          'gallon': languageCode == 'sa' ? 'جالون' : 'gallon',
-          'bottle': languageCode == 'sa' ? 'عبوة' : 'bottle',
-          'pack': languageCode == 'sa' ? 'عبوة' : 'pack'
-        };
-
-        // Set units based on category
-        switch (categoryId) {
-          case 21: // تمور (Dates)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['box']!,
-              unitTranslations['ton']!
-            ];
-            break;
-
-          case 22: // شتلات (Seedlings)
-            _categoryUnits = [
-              unitTranslations['piece']!,
-              unitTranslations['seedling']!,
-              unitTranslations['tray']!
-            ];
-            break;
-
-          case 23: // حبوب (Grains)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['ton']!,
-              unitTranslations['bag']!
-            ];
-            break;
-
-          case 24: // أسمدة وأعلاف (Fertilizers and Feeds)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['liter']!,
-              unitTranslations['bag']!,
-              unitTranslations['ton']!
-            ];
-            break;
-
-          case 25: // خضار (Vegetables)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['box']!,
-              unitTranslations['bundle']!
-            ];
-            break;
-
-          case 26: // فواكه (Fruits)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['box']!,
-              unitTranslations['single']!
-            ];
-            break;
-
-          case 27: // عسل (Honey)
-            _categoryUnits = [
-              unitTranslations['gram']!,
-              unitTranslations['kg']!,
-              unitTranslations['liter']!,
-              unitTranslations['jar']!
-            ];
-            break;
-
-          case 28: // لحوم وأسماك (Meats and Fish)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['box']!,
-              unitTranslations['piece']!
-            ];
-            break;
-
-          case 29: // زيوت (Oils)
-            _categoryUnits = [
-              unitTranslations['liter']!,
-              unitTranslations['gallon']!,
-              unitTranslations['bottle']!
-            ];
-            break;
-
-          case 30: // منتجات عضوية (Organic Products)
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['box']!,
-              unitTranslations['pack']!
-            ];
-            break;
-
-          default: // Other categories
-            _categoryUnits = [
-              unitTranslations['kg']!,
-              unitTranslations['piece']!,
-              unitTranslations['box']!,
-              unitTranslations['liter']!
-            ];
-        }
-      }
-      notifyListeners();
-    }
-  }
-
-  void setSubCategoryIndex(int? index, bool notify) {
-    _subCategoryIndex = index;
-    if (notify) {
-      notifyListeners();
-    }
-  }
-
-  void setSubSubCategoryIndex(int? index, bool notify) {
-    _subSubCategoryIndex = index;
-    if (notify) {
-      notifyListeners();
-    }
-  }
-
   void setStringImage(int index, String image, String colorCode,
       {String? path}) {
     withColor[index].imageString = image;
@@ -1151,6 +1103,7 @@ class AddProductController extends ChangeNotifier {
         'meta_max_image_preview': '0',
         'meta_max_image_preview_value': 'large',
         'tags': jsonEncode([]),
+        'is_organic': _isOrganic,
       };
 
       log("=== Request Fields ===");
@@ -1259,13 +1212,6 @@ class AddProductController extends ChangeNotifier {
       }
     }
     return hasData;
-  }
-
-  void setValueForUnit(String? setValue) {
-    if (kDebugMode) {
-      print('------$setValue====$_unitValue');
-    }
-    _unitValue = setValue;
   }
 
   void setProductTypeIndex(int index, bool notify) {
@@ -1641,64 +1587,6 @@ class AddProductController extends ChangeNotifier {
   final TextEditingController minimumOrderQuantityController =
       TextEditingController();
 
-  void setCategoryUnits(String? categoryId) {
-    _categoryUnits = [];
-    if (categoryId != null) {
-      String languageCode =
-          Provider.of<LocalizationController>(Get.context!, listen: false)
-                      .locale
-                      .countryCode ==
-                  'US'
-              ? 'en'
-              : 'sa';
-
-      // Define units based on language
-      Map<String, Map<String, String>> unitTranslations = {
-        'kg': {'en': 'kg', 'sa': 'كيلوجرام'},
-        'gm': {'en': 'gm', 'sa': 'جرام'},
-        'ltr': {'en': 'ltr', 'sa': 'لتر'},
-        'pc': {'en': 'pc', 'sa': 'قطعة'},
-        'meter': {'en': 'meter', 'sa': 'متر'},
-        'cm': {'en': 'cm', 'sa': 'سم'}
-      };
-
-      if (_categoryList != null) {
-        for (var category in _categoryList!) {
-          if (category.id.toString() == categoryId) {
-            // Fruits and Vegetables (IDs 21 and 22)
-            if (category.id == 21 || category.id == 22) {
-              _categoryUnits = [
-                unitTranslations['kg']![languageCode]!,
-                unitTranslations['gm']![languageCode]!
-              ];
-            }
-            // Clothing category (assuming ID 23)
-            else if (category.id == 23) {
-              _categoryUnits = [
-                unitTranslations['meter']![languageCode]!,
-                unitTranslations['cm']![languageCode]!,
-                unitTranslations['pc']![languageCode]!
-              ];
-            }
-            // Default units for other categories
-            else {
-              _categoryUnits = [
-                unitTranslations['pc']![languageCode]!,
-                unitTranslations['kg']![languageCode]!,
-                unitTranslations['gm']![languageCode]!,
-                unitTranslations['ltr']![languageCode]!
-              ];
-            }
-            break;
-          }
-        }
-      }
-    }
-    // Reset unit value when category changes
-    _unitValue = null;
-    notifyListeners();
-  }
-
   void setWantDiscount(bool value) {
     _wantDiscount = value;
     if (!value) {
@@ -1848,6 +1736,39 @@ class AddProductController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setIsOrganic(bool value) {
+    _isOrganic = value;
+    notifyListeners();
+  }
+
+  void setSubCategoryIndex(int? index, bool notify) {
+    _subCategoryIndex = index;
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
+  void setSubSubCategoryIndex(int? index, bool notify) {
+    _subSubCategoryIndex = index;
+    if (notify) {
+      notifyListeners();
+    }
+  }
+
+  void setSelectedUnitType(String type) {
+    _selectedUnitType = type;
+    notifyListeners();
+  }
+
+  void clearUnitFields() {
+    _selectedUnitType = null;
+    weightController.clear();
+    volumeController.clear();
+    lengthController.clear();
+    pieceController.clear();
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     discountController.dispose();
@@ -1857,6 +1778,11 @@ class AddProductController extends ChangeNotifier {
     minimumOrderQuantityController.dispose();
     _shippingCapacityController.dispose();
     _minDeliveryLimitController.dispose();
+    unitQuantityController.dispose();
+    weightController.dispose();
+    volumeController.dispose();
+    lengthController.dispose();
+    pieceController.dispose();
     super.dispose();
   }
 }
