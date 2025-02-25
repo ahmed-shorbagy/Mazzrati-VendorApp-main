@@ -109,15 +109,15 @@ class MyNotification {
             : '${AppConstants.baseUrl}/storage/app/public/notification/${message.data['image']}'
         : null;
 
-    if (image!.isNotEmpty) {
+    if (image != null && image.isNotEmpty) {
       try {
         await showBigPictureNotificationHiddenLargeIcon(
             title, body, message.data, image, fln);
       } catch (e) {
-        await showBigTextNotification(title, body!, message.data, fln);
+        await showBigTextNotification(title, body ?? "", message.data, fln);
       }
     } else {
-      await showBigTextNotification(title, body!, message.data, fln);
+      await showBigTextNotification(title, body ?? "", message.data, fln);
     }
   }
 

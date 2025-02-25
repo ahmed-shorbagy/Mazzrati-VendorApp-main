@@ -429,7 +429,7 @@ class ChatController extends ChangeNotifier {
       // _pickedImageFiles = [];
       // pickedImageFileStored = [];
 
-      for (var element in platformFile!) {
+      for (var element in platformFile ?? []) {
         if (ImageSize.getFileSizeFromPlatformFileToDouble(element) >
             AppConstants.maxSizeOfASingleFile) {
           _singleFIleCrossMaxLimit = true;
@@ -450,11 +450,11 @@ class ChatController extends ChangeNotifier {
       }
 
       if (objFile?.length == AppConstants.maxLimitOfTotalFileSent &&
-          platformFile.length > AppConstants.maxLimitOfTotalFileSent) {
+          (platformFile?.length ?? 0) > AppConstants.maxLimitOfTotalFileSent) {
         _pickedFIleCrossMaxLength = true;
       }
       if (objFile?.length == AppConstants.maxLimitOfTotalFileSent &&
-          ImageSize.getMultipleFileSizeFromPlatformFiles(platformFile) >
+          ImageSize.getMultipleFileSizeFromPlatformFiles(platformFile ?? []) >
               AppConstants.maxLimitOfFileSentINConversation) {
         _pickedFIleCrossMaxLimit = true;
       }

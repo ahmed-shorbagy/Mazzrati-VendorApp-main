@@ -256,7 +256,7 @@ class AuthService implements AuthServiceInterface {
         }
         errorMessage = errorResponse.errors![0].message;
       }
-      log(errorMessage!);
+      log(errorMessage ?? "");
       return ResponseModel(false, errorMessage);
     }
   }

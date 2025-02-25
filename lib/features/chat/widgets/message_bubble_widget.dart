@@ -1,19 +1,20 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_image_widget.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/image_diaglog_widget.dart';
+import 'package:mazzraati_vendor_app/features/chat/controllers/chat_controller.dart';
 import 'package:mazzraati_vendor_app/features/chat/domain/models/message_model.dart';
 import 'package:mazzraati_vendor_app/features/chat/widgets/chatting_multi_image_slider.dart';
-import 'package:mazzraati_vendor_app/features/chat/controllers/chat_controller.dart';
 import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/image_diaglog_widget.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class MessageBubbleWidget extends StatelessWidget {
   final Message message;
@@ -384,8 +385,8 @@ class MessageBubbleWidget extends StatelessWidget {
                                             }
                                             chatProvider.downloadFile(
                                                 files[index].path!,
-                                                directory!.path,
-                                                "${directory.path}/${files[index].key}",
+                                                directory?.path ?? "",
+                                                "${directory?.path ?? ""}/${files[index].key}",
                                                 ""
                                                     "${files[index].key}");
                                           } else if (status.isDenied) {

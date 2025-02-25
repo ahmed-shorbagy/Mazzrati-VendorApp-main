@@ -1,12 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mazzraati_vendor_app/features/notification/controllers/notification_controller.dart';
-import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_loader_widget.dart';
 import 'package:mazzraati_vendor_app/features/bank_info/controllers/bank_info_controller.dart';
 import 'package:mazzraati_vendor_app/features/delivery_man/controllers/delivery_man_controller.dart';
+import 'package:mazzraati_vendor_app/features/delivery_man/widgets/top_delivery_man_view_widget.dart';
+import 'package:mazzraati_vendor_app/features/home/widgets/chart_widget.dart';
+import 'package:mazzraati_vendor_app/features/home/widgets/completed_order_widget.dart';
+import 'package:mazzraati_vendor_app/features/home/widgets/on_going_order_widget.dart';
+import 'package:mazzraati_vendor_app/features/notification/controllers/notification_controller.dart';
+import 'package:mazzraati_vendor_app/features/notification/screens/notification_screen.dart';
 import 'package:mazzraati_vendor_app/features/order/controllers/order_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/controllers/product_controller.dart';
+import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
+import 'package:mazzraati_vendor_app/features/product/screens/most_popular_product_screen.dart';
+import 'package:mazzraati_vendor_app/features/product/screens/top_selling_product_screen.dart';
 import 'package:mazzraati_vendor_app/features/profile/controllers/profile_controller.dart';
 import 'package:mazzraati_vendor_app/features/shipping/controllers/shipping_controller.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
@@ -14,15 +21,7 @@ import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/images.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_loader_widget.dart';
-import 'package:mazzraati_vendor_app/features/home/widgets/chart_widget.dart';
-import 'package:mazzraati_vendor_app/features/home/widgets/completed_order_widget.dart';
-import 'package:mazzraati_vendor_app/features/home/widgets/on_going_order_widget.dart';
-import 'package:mazzraati_vendor_app/features/product/widgets/stock_out_product_widget.dart';
-import 'package:mazzraati_vendor_app/features/notification/screens/notification_screen.dart';
-import 'package:mazzraati_vendor_app/features/product/screens/most_popular_product_screen.dart';
-import 'package:mazzraati_vendor_app/features/product/screens/top_selling_product_screen.dart';
-import 'package:mazzraati_vendor_app/features/delivery_man/widgets/top_delivery_man_view_widget.dart';
+import 'package:provider/provider.dart';
 
 class HomePageScreen extends StatefulWidget {
   final Function? callback;
@@ -160,14 +159,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
                               callback: widget.callback,
                             ),
                             CompletedOrderWidget(callback: widget.callback),
-                            const SizedBox(height: Dimensions.paddingSizeSmall),
                             Consumer<ProductController>(
                                 builder: (context, prodProvider, child) {
                               List<Product> productList;
                               productList = prodProvider.stockOutProductList;
                               return productList.isNotEmpty
                                   ? Container(
-                                      height: limitedStockCardHeight,
                                       decoration: BoxDecoration(
                                         color: Theme.of(context).cardColor,
                                         boxShadow: [
@@ -181,9 +178,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                                                   Offset.fromDirection(0, 6))
                                         ],
                                       ),
-                                      child: StockOutProductView(
-                                          scrollController: _scrollController,
-                                          isHome: true))
+                                      child: const SizedBox())
                                   : const SizedBox();
                             }),
                             const SizedBox(height: Dimensions.paddingSizeSmall),

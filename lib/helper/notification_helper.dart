@@ -60,10 +60,10 @@ class NotificationHelper {
         await showBigPictureNotificationHiddenLargeIcon(
             title, body, orderID, image, fln!);
       } catch (e) {
-        await showBigTextNotification(title, body!, orderID!, fln!);
+        await showBigTextNotification(title, body ?? "", orderID ?? "", fln!);
       }
     } else {
-      await showBigTextNotification(title, body!, orderID!, fln!);
+      await showBigTextNotification(title, body ?? "", orderID ?? "", fln!);
     }
   }
 

@@ -49,7 +49,7 @@ class OrderWidget extends StatelessWidget {
       }
       double subTotal = itemsPrice + tax - discount;
 
-      orderAmount = subTotal + shipping - coupon - eeDiscount!;
+      orderAmount = subTotal + shipping - coupon - (eeDiscount ?? 0);
 
       // double ? _extraDiscountAnount = 0;
       // if(orderModel.extraDiscount != null){
