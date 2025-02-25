@@ -244,6 +244,8 @@ class AddProductController extends ChangeNotifier {
         return languageCode == 'ar'
             ? ['كيلو', 'صندوق', 'ربطة']
             : ['kg', 'box', 'bundle'];
+      case 29: //
+        return languageCode == 'ar' ? ['قطعة', 'طول'] : ['piece', 'length'];
 
       case 24: // Fertilizers
         return languageCode == 'ar'

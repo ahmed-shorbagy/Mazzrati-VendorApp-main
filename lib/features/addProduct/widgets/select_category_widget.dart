@@ -76,7 +76,7 @@ class SelectCategoryWidgetState extends State<SelectCategoryWidget> {
                             // Call setCategoryIndex with the correct index (index + 1 because 0 is for "Select Category")
                             resProvider.setCategoryIndex(index + 1, true);
 
-                            log('Selected category: ${resProvider.categoryList![index].name!}');
+                            log('Selected category: ${resProvider.categoryList![index].name! + resProvider.categoryList![index].id.toString()}');
                             log('Product details: ${widget.product?.toJson().toString() ?? 'No product'}');
 
                             // Call the onCategoryChanged callback if it's provided
