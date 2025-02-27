@@ -14,8 +14,8 @@
   "shipping_type": "Shipping Type",
   
   "product_status": "Product Status",
-  "product_active": "Active",
-  "product_inactive": "Inactive",
+  "product_active": "Active (Visible to customers)",
+  "product_inactive": "Inactive (Hidden from customers)",
   "units": "Units",
   "please_enter_shipping_info"  : "Please enter shipping info",
   "branch_name_hint": "Ex: Texas Branch",

@@ -1460,6 +1460,6 @@
   "shipping_capacity_required": "سعة الشحن مطلوبة",
   "minimum_delivery_required": "الحد الأدنى للتوصيل مطلوب",
   "product_status": "حالة المنتج",
-  "product_active": "نشط",
-  "product_inactive": "غير نشط"
+  "product_active": "نشط (مرئي للعملاء)",
+  "product_inactive": "غير نشط (غير مرئي للعملاء)"
 }
