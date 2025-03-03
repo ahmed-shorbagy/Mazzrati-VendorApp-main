@@ -12,11 +12,13 @@
   "bank_name_hint": "Ex: City Bank",
   "thumbnail_image" :"Product Image",
   "shipping_type": "Shipping Type",
+  "distance_range": "Distance Range",
   
   "product_status": "Product Status",
   "product_active": "Active (Visible to customers)",
   "product_inactive": "Inactive (Hidden from customers)",
   "units": "Units",
+  "shipping_charges_by_distance": "Shipping Charges by Distance",
   "please_enter_shipping_info"  : "Please enter shipping info",
   "branch_name_hint": "Ex: Texas Branch",
   "holder_name_hint": "Ex: John Doe",

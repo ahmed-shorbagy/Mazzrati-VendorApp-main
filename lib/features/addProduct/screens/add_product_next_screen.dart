@@ -175,11 +175,9 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
       // Get shipping values directly from controllers
       int? shippingCapacity =
           int.tryParse(_shippingCapacityController.text.trim());
-      int? minimumDeliveryLimit =
-          int.tryParse(_minDeliveryLimitController.text.trim());
 
       // Validate shipping values
-      if (shippingCapacity == null || minimumDeliveryLimit == null) {
+      if (shippingCapacity == null) {
         showCustomSnackBarWidget(
           getTranslated('please_enter_shipping_info', context),
           context,
@@ -188,7 +186,7 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         return;
       }
 
-      if (shippingCapacity <= 0 || minimumDeliveryLimit <= 0) {
+      if (shippingCapacity <= 0) {
         showCustomSnackBarWidget(
           getTranslated('please_enter_valid_shipping_values', context),
           context,
@@ -197,9 +195,14 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         return;
       }
 
-      if (minimumDeliveryLimit > shippingCapacity) {
+      // Validate shipping ranges
+      bool hasEmptyRanges = provider.shippingRanges.any((range) =>
+          range.priceController.text.isEmpty ||
+          double.tryParse(range.priceController.text) == null);
+
+      if (hasEmptyRanges) {
         showCustomSnackBarWidget(
-          getTranslated('minimum_delivery_cant_be_more_than_capacity', context),
+          getTranslated('please_enter_all_shipping_ranges', context),
           context,
           isError: true,
         );
@@ -219,7 +222,7 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         thumbnail: '', // Will be set after image upload
         thumbnailFullUrl: null, // Will be set after image upload
         shippingCapacity: shippingCapacity,
-        minimumDeliveryLimit: minimumDeliveryLimit,
+        shippingRanges: provider.getShippingRangesJson(),
         shippingCost: provider.shippingCostController.text.isNotEmpty
             ? double.parse(provider.shippingCostController.text.trim())
             : 0.0,

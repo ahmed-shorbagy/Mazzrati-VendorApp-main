@@ -63,8 +63,8 @@ class Product {
   double? purchasePrice;
   double? tax;
   String? taxModel;
-  int? minQty;
   String? taxType;
+  int? minQty;
   double? discount;
   String? discountType;
   int? currentStock;
@@ -93,6 +93,8 @@ class Product {
   String? shippingType;
   int? shippingCapacity;
   int? minimumDeliveryLimit;
+  int? freeShipping;
+  Map<String, dynamic>? shippingRanges;
 
   Product(
       {this.id,
@@ -151,7 +153,9 @@ class Product {
       this.digitalVariation,
       this.shippingType = 'non_refrigerated',
       this.shippingCapacity,
-      this.minimumDeliveryLimit}) {
+      this.minimumDeliveryLimit,
+      this.freeShipping,
+      this.shippingRanges}) {
     if (digitalProductType != null) {
       this.digitalProductType = digitalProductType;
     }
@@ -342,6 +346,9 @@ class Product {
       minimumDeliveryLimit =
           int.parse(json['minimum_delivery_limit'].toString());
     }
+
+    freeShipping = json['free_shipping'];
+    shippingRanges = json['shipping_ranges'];
   }
 
   Map<String, dynamic> toJson() {
@@ -410,6 +417,8 @@ class Product {
     data['shipping_type'] = shippingType;
     data['shipping_capacity'] = shippingCapacity;
     data['minimum_delivery_limit'] = minimumDeliveryLimit;
+    data['free_shipping'] = freeShipping;
+    data['shipping_ranges'] = shippingRanges;
     return data;
   }
 }

@@ -143,10 +143,21 @@ class AddProductScreenState extends State<AddProductScreen>
   }
 
   Widget _buildUnitSelection(AddProductController resProvider) {
+    bool isArabic = Provider.of<LocalizationController>(context, listen: false)
+            .locale
+            .countryCode !=
+        'US';
+
     // Reset selectedUnitType if it's not in the current category's units
     if (selectedUnitType != null &&
         !resProvider.categoryUnits!.contains(selectedUnitType)) {
       selectedUnitType = null;
+    }
+
+    // Convert طول (length) to متر (meter) when selected
+    if (selectedUnitType == 'طول' || selectedUnitType == 'length') {
+      selectedUnitType = isArabic ? 'متر' : 'meter';
+      resProvider.setValueForUnit(selectedUnitType);
     }
 
     return Padding(
@@ -174,9 +185,14 @@ class AddProductScreenState extends State<AddProductScreen>
               }).toList(),
               onChanged: (String? value) {
                 setState(() {
-                  selectedUnitType = value;
+                  // Convert طول to متر when selected
+                  if (value == 'طول' || value == 'length') {
+                    selectedUnitType = isArabic ? 'متر' : 'meter';
+                  } else {
+                    selectedUnitType = value;
+                  }
                   // Set the unitValue in the provider when unit is selected
-                  resProvider.setValueForUnit(value);
+                  resProvider.setValueForUnit(selectedUnitType);
                 });
               },
               hint: Text(getTranslated('select_unit', context)!),
@@ -215,32 +231,52 @@ class AddProductScreenState extends State<AddProductScreen>
   TextEditingController _getControllerForUnit(String unit) {
     switch (unit) {
       case 'كيلو':
+      case 'kg':
         return weightController;
       case 'لتر':
+      case 'liter':
         return literController;
       case 'متر':
+      case 'meter':
         return meterController;
       case 'سم':
+      case 'cm':
         return cmController;
       case 'قطعة':
+      case 'piece':
         return pieceController;
+      case 'طول':
+      case 'length':
+        return meterController; // Use meter controller for length
       default:
         return TextEditingController();
     }
   }
 
   String _getLabelForUnit(String unit) {
+    bool isArabic = Provider.of<LocalizationController>(context, listen: false)
+            .locale
+            .countryCode !=
+        'US';
+
     switch (unit) {
       case 'كيلو':
-        return 'الوزن';
+      case 'kg':
+        return isArabic ? 'الوزن' : 'Weight';
       case 'لتر':
-        return 'الحجم';
+      case 'liter':
+        return isArabic ? 'الحجم' : 'Volume';
       case 'متر':
-        return 'الطول';
+      case 'meter':
+      case 'طول':
+      case 'length':
+        return isArabic ? 'الطول' : 'Length';
       case 'سم':
-        return 'الطول';
+      case 'cm':
+        return isArabic ? 'الطول' : 'Length';
       case 'قطعة':
-        return 'القطع';
+      case 'piece':
+        return isArabic ? 'القطع' : 'Pieces';
       default:
         return '';
     }
