@@ -195,20 +195,6 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         return;
       }
 
-      // Validate shipping ranges
-      bool hasEmptyRanges = provider.shippingRanges.any((range) =>
-          range.priceController.text.isEmpty ||
-          double.tryParse(range.priceController.text) == null);
-
-      if (hasEmptyRanges) {
-        showCustomSnackBarWidget(
-          getTranslated('please_enter_all_shipping_ranges', context),
-          context,
-          isError: true,
-        );
-        return;
-      }
-
       // Create Product model with validated shipping values
       Product product = Product(
         tax: double.parse(provider.taxController.text.trim()),
@@ -222,7 +208,6 @@ class AddProductNextScreenState extends State<AddProductNextScreen> {
         thumbnail: '', // Will be set after image upload
         thumbnailFullUrl: null, // Will be set after image upload
         shippingCapacity: shippingCapacity,
-        shippingRanges: provider.getShippingRangesJson(),
         shippingCost: provider.shippingCostController.text.isNotEmpty
             ? double.parse(provider.shippingCostController.text.trim())
             : 0.0,

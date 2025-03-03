@@ -36,18 +36,6 @@ import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:provider/provider.dart';
 
-class ShippingRange {
-  final int startKm;
-  final int endKm;
-  final TextEditingController priceController;
-
-  ShippingRange({
-    required this.startKm,
-    required this.endKm,
-    required this.priceController,
-  });
-}
-
 class AddProductController extends ChangeNotifier {
   final AddProductServiceInterface shopServiceInterface;
   late TextEditingController _shippingCapacityController;
@@ -215,9 +203,6 @@ class AddProductController extends ChangeNotifier {
       _minDeliveryLimitController;
 
   final TextEditingController unitQuantityController = TextEditingController();
-
-  List<ShippingRange> _shippingRanges = [];
-  List<ShippingRange> get shippingRanges => _shippingRanges;
 
   void setUnitQuantity(String value) {
     if (value.isNotEmpty) {
@@ -1789,41 +1774,6 @@ class AddProductController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initializeShippingRanges() {
-    _shippingRanges = [
-      ShippingRange(
-          startKm: 0, endKm: 50, priceController: TextEditingController()),
-      ShippingRange(
-          startKm: 51, endKm: 150, priceController: TextEditingController()),
-      ShippingRange(
-          startKm: 151, endKm: 350, priceController: TextEditingController()),
-      ShippingRange(
-          startKm: 351,
-          endKm: -1,
-          priceController: TextEditingController()), // -1 indicates unlimited
-    ];
-    notifyListeners();
-  }
-
-  Map<String, dynamic> getShippingRangesJson() {
-    return {
-      'shipping_ranges': _shippingRanges
-          .map((range) => {
-                'start_km': range.startKm,
-                'end_km': range.endKm,
-                'price': double.tryParse(range.priceController.text) ?? 0.0,
-              })
-          .toList(),
-    };
-  }
-
-  void setShippingRangePrice(int index, String price) {
-    if (index < _shippingRanges.length) {
-      _shippingRanges[index].priceController.text = price;
-      notifyListeners();
-    }
-  }
-
   @override
   void dispose() {
     discountController.dispose();
@@ -1838,9 +1788,6 @@ class AddProductController extends ChangeNotifier {
     volumeController.dispose();
     lengthController.dispose();
     pieceController.dispose();
-    for (var range in _shippingRanges) {
-      range.priceController.dispose();
-    }
     super.dispose();
   }
 }

@@ -1,20 +1,32 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
 import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
 import 'package:mazzraati_vendor_app/data/model/response/base/error_response.dart';
 import 'package:mazzraati_vendor_app/features/auth/controllers/auth_controller.dart';
+import 'package:mazzraati_vendor_app/features/settings/screens/order_wise_shipping_list_screen.dart';
 import 'package:mazzraati_vendor_app/features/shipping/domain/models/category_wise_shipping_model.dart';
 import 'package:mazzraati_vendor_app/features/shipping/domain/models/shipping_model.dart';
 import 'package:mazzraati_vendor_app/features/shipping/domain/services/shipping_service_interface.dart';
+import 'package:mazzraati_vendor_app/features/shipping/screens/category_wise_shipping_screen.dart';
+import 'package:mazzraati_vendor_app/features/shipping/widgets/product_wise_shipping_widget.dart';
+import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/helper/api_checker.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
-import 'package:mazzraati_vendor_app/features/settings/screens/order_wise_shipping_list_screen.dart';
-import 'package:mazzraati_vendor_app/features/shipping/screens/category_wise_shipping_screen.dart';
-import 'package:mazzraati_vendor_app/features/shipping/widgets/product_wise_shipping_widget.dart';
+import 'package:provider/provider.dart';
+
+class ShippingRange {
+  final int startKm;
+  final int endKm;
+  final TextEditingController priceController;
+
+  ShippingRange({
+    required this.startKm,
+    required this.endKm,
+    required this.priceController,
+  });
+}
 
 class ShippingController extends ChangeNotifier {
   final ShippingServiceInterface shippingServiceInterface;
@@ -30,6 +42,9 @@ class ShippingController extends ChangeNotifier {
   List<AllCategoryShippingCost>? _categoryWiseShipping;
   List<AllCategoryShippingCost>? get categoryWiseShipping =>
       _categoryWiseShipping;
+
+  List<ShippingRange> _shippingRanges = [];
+  List<ShippingRange> get shippingRanges => _shippingRanges;
 
   Future<void> getShippingList(String token) async {
     _shippingIndex = 0;
@@ -307,5 +322,48 @@ class ShippingController extends ChangeNotifier {
     } else {}
     _isLoading = false;
     notifyListeners();
+  }
+
+  void initializeShippingRanges() {
+    _shippingRanges = [
+      ShippingRange(
+          startKm: 0, endKm: 50, priceController: TextEditingController()),
+      ShippingRange(
+          startKm: 51, endKm: 150, priceController: TextEditingController()),
+      ShippingRange(
+          startKm: 151, endKm: 350, priceController: TextEditingController()),
+      ShippingRange(
+          startKm: 351,
+          endKm: -1,
+          priceController: TextEditingController()), // -1 indicates unlimited
+    ];
+    notifyListeners();
+  }
+
+  Map<String, dynamic> getShippingRangesJson() {
+    return {
+      'shipping_ranges': _shippingRanges
+          .map((range) => {
+                'start_km': range.startKm,
+                'end_km': range.endKm,
+                'price': double.tryParse(range.priceController.text) ?? 0.0,
+              })
+          .toList(),
+    };
+  }
+
+  void setShippingRangePrice(int index, String price) {
+    if (index < _shippingRanges.length) {
+      _shippingRanges[index].priceController.text = price;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    for (var range in _shippingRanges) {
+      range.priceController.dispose();
+    }
+    super.dispose();
   }
 }

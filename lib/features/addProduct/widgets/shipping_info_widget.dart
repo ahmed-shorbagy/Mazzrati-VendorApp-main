@@ -26,20 +26,6 @@ class ShippingInfoWidget extends StatefulWidget {
 
 class _ShippingInfoWidgetState extends State<ShippingInfoWidget> {
   @override
-  void initState() {
-    super.initState();
-    // Initialize shipping ranges in the next frame to avoid null check issues
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        final provider =
-            Provider.of<AddProductController>(context, listen: false);
-        if (provider.shippingRanges.isEmpty) {
-          provider.initializeShippingRanges();
-        }
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AddProductController>(
@@ -147,70 +133,24 @@ class _ShippingInfoWidgetState extends State<ShippingInfoWidget> {
                     ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                    // Shipping Ranges Table
-                    Text(
-                      getTranslated('shipping_charges_by_distance', context)!,
-                      style: robotoRegular.copyWith(
-                        fontSize: Dimensions.fontSizeDefault,
-                        color: ColorResources.titleColor(context),
+                    // Note about shipping charges
+                    Container(
+                      padding:
+                          const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(
+                            Dimensions.paddingSizeExtraSmall),
+                      ),
+                      child: Text(
+                        getTranslated('shipping_charges_note', context) ??
+                            'Shipping charges are configured in the shipping settings',
+                        style: robotoRegular.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                          color: Theme.of(context).primaryColor,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: Dimensions.paddingSizeSmall),
-                    if (resProvider.shippingRanges.isNotEmpty)
-                      Table(
-                        border: TableBorder.all(
-                          color: Theme.of(context).hintColor.withOpacity(.3),
-                          width: 0.7,
-                        ),
-                        children: [
-                          TableRow(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.1),
-                            ),
-                            children: [
-                              _buildTableHeader(context,
-                                  getTranslated('distance_range', context)!),
-                              _buildTableHeader(context,
-                                  getTranslated('shipping_cost', context)!),
-                            ],
-                          ),
-                          ...resProvider.shippingRanges.map((range) {
-                            return TableRow(
-                              children: [
-                                _buildTableCell(
-                                  context,
-                                  '${range.startKm} - ${range.endKm == -1 ? '∞' : range.endKm} ${getTranslated('km', context) ?? 'km'}',
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: CustomTextFieldWidget(
-                                    border: true,
-                                    controller: range.priceController,
-                                    textInputType: TextInputType.number,
-                                    textInputAction: TextInputAction.next,
-                                    isAmount: true,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                        ],
-                      )
-                    else
-                      Center(
-                        child: Padding(
-                          padding:
-                              const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                          child: Text(
-                            getTranslated(
-                                    'initializing_shipping_ranges', context) ??
-                                'Initializing shipping ranges...',
-                            style: robotoRegular,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -218,34 +158,6 @@ class _ShippingInfoWidgetState extends State<ShippingInfoWidget> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTableHeader(BuildContext context, String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        style: robotoMedium.copyWith(
-          fontSize: Dimensions.fontSizeSmall,
-          color: ColorResources.titleColor(context),
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-
-  Widget _buildTableCell(BuildContext context, String text) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        style: robotoRegular.copyWith(
-          fontSize: Dimensions.fontSizeSmall,
-          color: ColorResources.titleColor(context),
-        ),
-        textAlign: TextAlign.center,
       ),
     );
   }
