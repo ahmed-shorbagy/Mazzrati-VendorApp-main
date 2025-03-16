@@ -12,4 +12,5 @@ abstract class ShippingRepositoryInterface implements RepositoryInterface {
   Future<ApiResponse> setCategoryWiseShippingCost(
       List<int?> ids, List<double> cost, List<int> multiPly);
   Future<ApiResponse> shippingOnOff(int? id, int status);
+  Future<ApiResponse> getShippingPrices();
 }

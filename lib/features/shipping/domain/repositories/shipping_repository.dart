@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mazzraati_vendor_app/data/datasource/remote/dio/dio_client.dart';
 import 'package:mazzraati_vendor_app/data/datasource/remote/exception/api_error_handler.dart';
 import 'package:mazzraati_vendor_app/data/model/response/base/api_response.dart';
@@ -103,6 +105,17 @@ class ShippingRepository implements ShippingRepositoryInterface {
           data: {'_method': 'put', 'id': id, 'status': status});
       return ApiResponse.withSuccess(response);
     } catch (e) {
+      return ApiResponse.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+  @override
+  Future<ApiResponse> getShippingPrices() async {
+    try {
+      final response = await dioClient!.get(AppConstants.shippingPricesUri);
+      return ApiResponse.withSuccess(response);
+    } catch (e) {
+      log(e.toString());
       return ApiResponse.withError(ApiErrorHandler.getMessage(e));
     }
   }

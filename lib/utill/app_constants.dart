@@ -70,6 +70,7 @@ class AppConstants {
       '/api/v3/seller/orders/assign-third-party-delivery';
   static const String forgotPasswordUri =
       '/api/v3/seller/auth/reset-password-request';
+  static const String shippingPricesUri = '/api/v3/seller/shiping-prices';
 
   static const String SendOtpUri = '/api/v3/seller/registration/get-phone-otp';
   static const String verifyOtpUri =

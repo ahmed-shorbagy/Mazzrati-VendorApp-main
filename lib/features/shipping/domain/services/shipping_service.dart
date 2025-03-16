@@ -58,4 +58,9 @@ class ShippingService implements ShippingServiceInterface {
       String? title, String? duration, double? cost, int? id) {
     return shippingRepoInterface.updateShipping(title, duration, cost, id);
   }
+
+  @override
+  Future getShippingPrices() {
+    return shippingRepoInterface.getShippingPrices();
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_snackbar_widget.dart';
@@ -350,6 +352,65 @@ class ShippingController extends ChangeNotifier {
               })
           .toList(),
     };
+  }
+
+  bool _isLoadingShippingPrices = false;
+  bool get isLoadingShippingPrices => _isLoadingShippingPrices;
+
+  Map<String, dynamic>? _shippingPricesResponse;
+  Map<String, dynamic>? get shippingPricesResponse => _shippingPricesResponse;
+
+  Future<void> getShippingPrices() async {
+    _isLoadingShippingPrices = true;
+    _shippingPricesResponse = null;
+    notifyListeners();
+
+    try {
+      ApiResponse apiResponse =
+          await shippingServiceInterface.getShippingPrices();
+      log("shippingPricesResponse: ${apiResponse.response!.data}");
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        _shippingPricesResponse = apiResponse.response!.data;
+
+        // If there are shipping ranges in the response, update the UI
+        if (_shippingPricesResponse != null &&
+            _shippingPricesResponse!.containsKey('shipping_ranges')) {
+          final shippingRangesData =
+              _shippingPricesResponse!['shipping_ranges'] as List?;
+
+          if (shippingRangesData != null && shippingRangesData.isNotEmpty) {
+            // Clear existing shipping ranges
+            for (var range in _shippingRanges) {
+              range.priceController.dispose();
+            }
+
+            _shippingRanges = [];
+
+            // Add new shipping ranges from API
+            for (var rangeData in shippingRangesData) {
+              if (rangeData is Map) {
+                final startKm = rangeData['start_km'] as int? ?? 0;
+                final endKm = rangeData['end_km'] as int? ?? -1;
+                final price = rangeData['price']?.toString() ?? '0.0';
+
+                _shippingRanges.add(ShippingRange(
+                    startKm: startKm,
+                    endKm: endKm,
+                    priceController: TextEditingController(text: price)));
+              }
+            }
+          }
+        }
+      } else {
+        ApiChecker.checkApi(apiResponse);
+      }
+    } catch (e) {
+      print('Error fetching shipping prices: $e');
+    } finally {
+      _isLoadingShippingPrices = false;
+      notifyListeners();
+    }
   }
 
   void setShippingRangePrice(int index, String price) {

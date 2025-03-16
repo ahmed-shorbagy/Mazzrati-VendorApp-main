@@ -13,4 +13,5 @@ abstract class ShippingServiceInterface {
   Future<dynamic> setCategoryWiseShippingCost(
       List<int?> ids, List<double> cost, List<int> multiPly);
   Future<dynamic> shippingOnOff(int? id, int status);
+  Future<dynamic> getShippingPrices();
 }

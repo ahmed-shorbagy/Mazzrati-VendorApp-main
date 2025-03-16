@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -52,6 +53,7 @@ class DioClient {
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
+      log(response.data.toString());
       return response;
     } on SocketException catch (e) {
       throw SocketException(e.toString());

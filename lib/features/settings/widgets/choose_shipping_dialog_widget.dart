@@ -24,14 +24,12 @@ class _ChooseShippingDialogWidgetState
     Provider.of<ShippingController>(context, listen: false)
         .getSelectedShippingMethodType(context);
 
-    // Initialize shipping ranges
+    // Call the API to get shipping prices
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final provider =
             Provider.of<ShippingController>(context, listen: false);
-        if (provider.shippingRanges.isEmpty) {
-          provider.initializeShippingRanges();
-        }
+        provider.getShippingPrices();
       }
     });
 
@@ -68,14 +66,48 @@ class _ChooseShippingDialogWidgetState
                   style: robotoRegular.copyWith(
                       fontSize: Dimensions.fontSizeSmall)),
             ),
-            // Consumer<SplashController>(
-            //   builder: (context, splash, child) {
-            //     List<String?> valueList = [];
-            //     for (var shipping in splash.shippingTypeList) {
-            //       valueList.add(getTranslated(shipping, context));
-            //     }
-            //   },
-            // ),
+
+            // API Response Display
+            if (shippingProvider.isLoadingShippingPrices)
+              const Padding(
+                padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (shippingProvider.shippingPricesResponse != null)
+              Padding(
+                padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'API Response:',
+                      style: robotoMedium.copyWith(
+                        fontSize: Dimensions.fontSizeDefault,
+                        color: ColorResources.titleColor(context),
+                      ),
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeSmall),
+                    Container(
+                      width: double.infinity,
+                      padding:
+                          const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).highlightColor,
+                        border: Border.all(
+                          color: Theme.of(context).hintColor.withOpacity(.3),
+                        ),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        shippingProvider.shippingPricesResponse.toString(),
+                        style: robotoRegular.copyWith(
+                          fontSize: Dimensions.fontSizeSmall,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
             // Shipping Ranges Table
             Padding(
