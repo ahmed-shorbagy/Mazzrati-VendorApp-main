@@ -1,0 +1,2 @@
+E:/sayed khatab work/Mazzrati-VendorApp-main/android/app/.cxx/Debug/216z5y69/x86/CMakeFiles/edit_cache.dir
+E:/sayed khatab work/Mazzrati-VendorApp-main/android/app/.cxx/Debug/216z5y69/x86/CMakeFiles/rebuild_cache.dir

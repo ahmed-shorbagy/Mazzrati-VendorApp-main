@@ -18,7 +18,7 @@ import 'package:mazzraati_vendor_app/helper/image_size_checker.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/main.dart';
 import 'package:mazzraati_vendor_app/utill/app_constants.dart';
-import 'package:open_file_plus/open_file_plus.dart';
+import 'package:open_file/open_file.dart';
 
 enum SenderType { customer, seller, admin, deliveryMan, unknown }
 

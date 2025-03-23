@@ -130,6 +130,8 @@ class _ShippingInfoWidgetState extends State<ShippingInfoWidget> {
                       textInputAction: TextInputAction.next,
                       hintText:
                           getTranslated('shipping_capacity_hint', context),
+                      onChanged: (value) =>
+                          resProvider.setShippingCapacity(value),
                     ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
 

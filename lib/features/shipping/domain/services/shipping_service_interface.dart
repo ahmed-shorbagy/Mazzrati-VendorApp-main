@@ -14,4 +14,9 @@ abstract class ShippingServiceInterface {
       List<int?> ids, List<double> cost, List<int> multiPly);
   Future<dynamic> shippingOnOff(int? id, int status);
   Future<dynamic> getShippingPrices();
+  Future<dynamic> addShippingRange({
+    required int distanceFrom,
+    required int distanceTo,
+    required double shippingPrice,
+  });
 }

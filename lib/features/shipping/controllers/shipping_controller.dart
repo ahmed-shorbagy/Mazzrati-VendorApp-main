@@ -372,32 +372,26 @@ class ShippingController extends ChangeNotifier {
       if (apiResponse.response != null &&
           apiResponse.response!.statusCode == 200) {
         _shippingPricesResponse = apiResponse.response!.data;
+        _shippingRanges = []; // Clear existing ranges
 
-        // If there are shipping ranges in the response, update the UI
+        // Parse shipping ranges from API response
         if (_shippingPricesResponse != null &&
             _shippingPricesResponse!.containsKey('shipping_ranges')) {
           final shippingRangesData =
               _shippingPricesResponse!['shipping_ranges'] as List?;
 
-          if (shippingRangesData != null && shippingRangesData.isNotEmpty) {
-            // Clear existing shipping ranges
-            for (var range in _shippingRanges) {
-              range.priceController.dispose();
-            }
-
-            _shippingRanges = [];
-
-            // Add new shipping ranges from API
+          if (shippingRangesData != null) {
             for (var rangeData in shippingRangesData) {
               if (rangeData is Map) {
-                final startKm = rangeData['start_km'] as int? ?? 0;
-                final endKm = rangeData['end_km'] as int? ?? -1;
-                final price = rangeData['price']?.toString() ?? '0.0';
+                final startKm = rangeData['distance_from'] as int? ?? 0;
+                final endKm = rangeData['distance_to'] as int? ?? -1;
+                final price = rangeData['shipping_price']?.toString() ?? '0.0';
 
                 _shippingRanges.add(ShippingRange(
-                    startKm: startKm,
-                    endKm: endKm,
-                    priceController: TextEditingController(text: price)));
+                  startKm: startKm,
+                  endKm: endKm,
+                  priceController: TextEditingController(text: price),
+                ));
               }
             }
           }
@@ -406,10 +400,34 @@ class ShippingController extends ChangeNotifier {
         ApiChecker.checkApi(apiResponse);
       }
     } catch (e) {
-      print('Error fetching shipping prices: $e');
+      log('Error fetching shipping prices: $e');
     } finally {
       _isLoadingShippingPrices = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> addShippingRange(
+      int distanceFrom, int distanceTo, double shippingPrice) async {
+    try {
+      ApiResponse apiResponse = await shippingServiceInterface.addShippingRange(
+        distanceFrom: distanceFrom,
+        distanceTo: distanceTo,
+        shippingPrice: shippingPrice,
+      );
+
+      if (apiResponse.response != null &&
+          apiResponse.response!.statusCode == 200) {
+        // Refresh shipping ranges after successful addition
+        await getShippingPrices();
+        return true;
+      } else {
+        ApiChecker.checkApi(apiResponse);
+        return false;
+      }
+    } catch (e) {
+      log('Error adding shipping range: $e');
+      return false;
     }
   }
 

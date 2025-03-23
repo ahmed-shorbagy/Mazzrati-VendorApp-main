@@ -13,4 +13,9 @@ abstract class ShippingRepositoryInterface implements RepositoryInterface {
       List<int?> ids, List<double> cost, List<int> multiPly);
   Future<ApiResponse> shippingOnOff(int? id, int status);
   Future<ApiResponse> getShippingPrices();
+  Future<ApiResponse> addShippingRange({
+    required int distanceFrom,
+    required int distanceTo,
+    required double shippingPrice,
+  });
 }

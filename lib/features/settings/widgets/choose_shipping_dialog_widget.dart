@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/custom_button_widget.dart';
 import 'package:mazzraati_vendor_app/common/basewidgets/textfeild/custom_text_feild_widget.dart';
 import 'package:mazzraati_vendor_app/features/shipping/controllers/shipping_controller.dart';
-import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
 import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/utill/color_resources.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
@@ -19,12 +18,24 @@ class ChooseShippingDialogWidget extends StatefulWidget {
 
 class _ChooseShippingDialogWidgetState
     extends State<ChooseShippingDialogWidget> {
+  final TextEditingController _distanceFromController = TextEditingController();
+  final TextEditingController _distanceToController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+
+  @override
+  void dispose() {
+    _distanceFromController.dispose();
+    _distanceToController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     Provider.of<ShippingController>(context, listen: false)
         .getSelectedShippingMethodType(context);
 
-    // Call the API to get shipping prices
+    // Get shipping ranges from API
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final provider =
@@ -34,6 +45,79 @@ class _ChooseShippingDialogWidgetState
     });
 
     super.initState();
+  }
+
+  void _showAddRangeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(getTranslated('add_shipping_range', context) ??
+            'Add Shipping Range'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextFieldWidget(
+              border: true,
+              controller: _distanceFromController,
+              textInputType: TextInputType.number,
+              hintText: getTranslated('distance_from', context) ??
+                  'Distance From (km)',
+            ),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+            CustomTextFieldWidget(
+              border: true,
+              controller: _distanceToController,
+              textInputType: TextInputType.number,
+              hintText:
+                  getTranslated('distance_to', context) ?? 'Distance To (km)',
+            ),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+            CustomTextFieldWidget(
+              border: true,
+              controller: _priceController,
+              textInputType: TextInputType.number,
+              hintText:
+                  getTranslated('shipping_price', context) ?? 'Shipping Price',
+              isAmount: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(getTranslated('cancel', context) ?? 'Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              // Validate and add range
+              if (_distanceFromController.text.isNotEmpty &&
+                  _distanceToController.text.isNotEmpty &&
+                  _priceController.text.isNotEmpty) {
+                final distanceFrom =
+                    int.tryParse(_distanceFromController.text) ?? 0;
+                final distanceTo =
+                    int.tryParse(_distanceToController.text) ?? 0;
+                final price = double.tryParse(_priceController.text) ?? 0.0;
+
+                if (distanceFrom < distanceTo && price > 0) {
+                  final success = await Provider.of<ShippingController>(context,
+                          listen: false)
+                      .addShippingRange(distanceFrom, distanceTo, price);
+
+                  if (success && mounted) {
+                    Navigator.pop(context); // Close add dialog
+                    _distanceFromController.clear();
+                    _distanceToController.clear();
+                    _priceController.clear();
+                  }
+                }
+              }
+            },
+            child: Text(getTranslated('add', context) ?? 'Add'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -67,65 +151,49 @@ class _ChooseShippingDialogWidgetState
                       fontSize: Dimensions.fontSizeSmall)),
             ),
 
-            // API Response Display
+            // Add Range Button
+            Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+              child: CustomButtonWidget(
+                btnTxt: getTranslated('add_shipping_range', context) ??
+                    'Add Shipping Range',
+                onTap: () => _showAddRangeDialog(context),
+              ),
+            ),
+
+            // Shipping Ranges Display
             if (shippingProvider.isLoadingShippingPrices)
               const Padding(
                 padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
                 child: Center(child: CircularProgressIndicator()),
               )
-            else if (shippingProvider.shippingPricesResponse != null)
+            else if (shippingProvider.shippingRanges.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                child: Center(
+                  child: Text(
+                    getTranslated('no_shipping_ranges_found', context) ??
+                        'No shipping ranges found',
+                    style: robotoRegular,
+                  ),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Dimensions.paddingSizeDefault),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'API Response:',
+                      getTranslated('shipping_charges_by_distance', context) ??
+                          'Shipping Charges by Distance',
                       style: robotoMedium.copyWith(
                         fontSize: Dimensions.fontSizeDefault,
                         color: ColorResources.titleColor(context),
                       ),
                     ),
                     const SizedBox(height: Dimensions.paddingSizeSmall),
-                    Container(
-                      width: double.infinity,
-                      padding:
-                          const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).highlightColor,
-                        border: Border.all(
-                          color: Theme.of(context).hintColor.withOpacity(.3),
-                        ),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Text(
-                        shippingProvider.shippingPricesResponse.toString(),
-                        style: robotoRegular.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Shipping Ranges Table
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: Dimensions.paddingSizeDefault),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    getTranslated('shipping_charges_by_distance', context) ??
-                        'Shipping Charges by Distance',
-                    style: robotoMedium.copyWith(
-                      fontSize: Dimensions.fontSizeDefault,
-                      color: ColorResources.titleColor(context),
-                    ),
-                  ),
-                  const SizedBox(height: Dimensions.paddingSizeSmall),
-                  if (shippingProvider.shippingRanges.isNotEmpty)
                     Table(
                       border: TableBorder.all(
                         color: Theme.of(context).hintColor.withOpacity(.3),
@@ -155,37 +223,18 @@ class _ChooseShippingDialogWidgetState
                                 context,
                                 '${range.startKm} - ${range.endKm == -1 ? '∞' : range.endKm} ${getTranslated('km', context) ?? 'km'}',
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: CustomTextFieldWidget(
-                                  border: true,
-                                  controller: range.priceController,
-                                  textInputType: TextInputType.number,
-                                  textInputAction: TextInputAction.next,
-                                  isAmount: true,
-                                ),
+                              _buildTableCell(
+                                context,
+                                range.priceController.text,
                               ),
                             ],
                           );
                         }),
                       ],
-                    )
-                  else
-                    Center(
-                      child: Padding(
-                        padding:
-                            const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                        child: Text(
-                          getTranslated(
-                                  'initializing_shipping_ranges', context) ??
-                              'Initializing shipping ranges...',
-                          style: robotoRegular,
-                        ),
-                      ),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
             const SizedBox(height: Dimensions.paddingSizeDefault),
 
@@ -207,33 +256,7 @@ class _ChooseShippingDialogWidgetState
                   child: CustomButtonWidget(
                       fontColor: Colors.white,
                       btnTxt: getTranslated('update', context),
-                      onTap: () {
-                        String? type;
-                        if (shippingProvider.shippingIndex == 0) {
-                          type = 'order_wise';
-                        } else if (shippingProvider.shippingIndex == 1) {
-                          type = 'product_wise';
-                        } else if (shippingProvider.shippingIndex == 2) {
-                          type = 'category_wise';
-                        }
-
-                        // Save shipping ranges
-                        // In future, this would be sent to the API
-                        Map<String, dynamic> shippingRanges =
-                            shippingProvider.getShippingRangesJson();
-                        print('Shipping Ranges: $shippingRanges');
-
-                        shippingProvider
-                            .setShippingMethodType(context, type)
-                            .then((value) {
-                          if (value.response!.statusCode == 200) {
-                            Provider.of<SplashController>(context,
-                                    listen: false)
-                                .initConfig();
-                            Navigator.pop(context);
-                          }
-                        });
-                      }),
+                      onTap: () => Navigator.pop(context)),
                 ),
               ]),
             ),

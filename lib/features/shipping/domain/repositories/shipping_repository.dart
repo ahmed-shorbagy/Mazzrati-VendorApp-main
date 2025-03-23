@@ -121,6 +121,28 @@ class ShippingRepository implements ShippingRepositoryInterface {
   }
 
   @override
+  Future<ApiResponse> addShippingRange({
+    required int distanceFrom,
+    required int distanceTo,
+    required double shippingPrice,
+  }) async {
+    try {
+      final response = await dioClient!.post(
+        AppConstants.shippingPricesUri,
+        queryParameters: {
+          'distance_from': distanceFrom,
+          'distance_to': distanceTo,
+          'shipping_price': shippingPrice,
+        },
+      );
+      return ApiResponse.withSuccess(response);
+    } catch (e) {
+      log(e.toString());
+      return ApiResponse.withError(ApiErrorHandler.getMessage(e));
+    }
+  }
+
+  @override
   Future add(value) async {
     try {
       final response =

@@ -63,4 +63,17 @@ class ShippingService implements ShippingServiceInterface {
   Future getShippingPrices() {
     return shippingRepoInterface.getShippingPrices();
   }
+
+  @override
+  Future addShippingRange({
+    required int distanceFrom,
+    required int distanceTo,
+    required double shippingPrice,
+  }) {
+    return shippingRepoInterface.addShippingRange(
+      distanceFrom: distanceFrom,
+      distanceTo: distanceTo,
+      shippingPrice: shippingPrice,
+    );
+  }
 }

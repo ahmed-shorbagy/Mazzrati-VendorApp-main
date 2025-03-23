@@ -179,7 +179,6 @@ class AddProductController extends ChangeNotifier {
 
   String _shippingType = 'non_refrigerated';
   String get shippingType => _shippingType;
-
   List<String>? _categoryUnits;
   List<String>? get categoryUnits => _categoryUnits;
 
@@ -1109,6 +1108,9 @@ class AddProductController extends ChangeNotifier {
         'meta_max_image_preview_value': 'large',
         'tags': jsonEncode([]),
         'is_organic': _isOrganic,
+        'is_frezed': _shippingType == 'refrigerated',
+        'size': jsonEncode([]),
+        'charge_capacity': _shippingCapacity
       };
 
       log("=== Request Fields ===");
