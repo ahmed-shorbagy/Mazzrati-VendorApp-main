@@ -22,6 +22,7 @@
   "is_frozen": "Is this product frozen?",
   "charge_capacity": "Charge Capacity",
   "shipping_charges_by_distance": "Shipping Charges by Distance",
+  "shipping_charges_note": "Shipping charges are configured in the shipping settings",
   "please_enter_shipping_info"  : "Please enter shipping info",
   "branch_name_hint": "Ex: Texas Branch",
   "holder_name_hint": "Ex: John Doe",

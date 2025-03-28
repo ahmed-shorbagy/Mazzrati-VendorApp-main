@@ -32,12 +32,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
   }
 
   void load(BuildContext context) {
-    Provider.of<ProductReviewController>(context, listen: false)
-        .getProductWiseReviewList(context, 1, widget.productModel!.id);
-    Provider.of<ProductDetailsController>(context, listen: false)
-        .getProductDetails(widget.productModel!.id);
-    Provider.of<AddProductController>(context, listen: false)
-        .getCategoryList(context, null, 'en');
+    // Use addPostFrameCallback to ensure these calls happen after the build is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductReviewController>(context, listen: false)
+          .getProductWiseReviewList(context, 1, widget.productModel!.id);
+      Provider.of<ProductDetailsController>(context, listen: false)
+          .getProductDetails(widget.productModel!.id);
+      Provider.of<AddProductController>(context, listen: false)
+          .getCategoryList(context, null, 'en');
+    });
   }
 
   @override
@@ -52,7 +55,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen>
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          // Wait for the current frame to complete before loading
+          await Future.delayed(Duration.zero);
           load(context);
+          return Future.value();
         },
         child: Consumer<ProductDetailsController>(
           builder: (context, productDetailsProvider, _) {

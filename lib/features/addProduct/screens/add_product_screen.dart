@@ -191,8 +191,19 @@ class AddProductScreenState extends State<AddProductScreen>
                   } else {
                     selectedUnitType = value;
                   }
+
+                  // Clear previous controller values when unit changes
+                  weightController.clear();
+                  volumeController.clear();
+                  lengthController.clear();
+                  pieceController.clear();
+
                   // Set the unitValue in the provider when unit is selected
                   resProvider.setValueForUnit(selectedUnitType);
+
+                  // Reset unit quantity
+                  resProvider.unitQuantityController.clear();
+                  resProvider.setUnitQuantity('');
                 });
               },
               hint: Text(getTranslated('select_unit', context)!),
@@ -221,6 +232,17 @@ class AddProductScreenState extends State<AddProductScreen>
                     ),
                   ),
                 ),
+                onChanged: (value) {
+                  // When value changes, update unitQuantityController in provider
+                  if (value.isNotEmpty) {
+                    double? qty = double.tryParse(value);
+                    if (qty != null) {
+                      resProvider.setUnitQuantity(value);
+                      // Also update the controller in the provider
+                      resProvider.unitQuantityController.text = value;
+                    }
+                  }
+                },
               ),
             ),
         ],

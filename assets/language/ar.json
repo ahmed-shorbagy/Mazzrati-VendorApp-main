@@ -17,6 +17,8 @@
   "ok": "نعم",
   "choose_language": "اختر اللغة",
   "settings_screen": "شاشة إعدادات",
+  "shipping_charges_note": "تكلفة الشحن محددة في إعدادات الشحن",
+  
   "shipping_method": "وسيلة الشحن",
   "refrigerated": "مبرد",
   "non_refrigerated": "غير مبرد",

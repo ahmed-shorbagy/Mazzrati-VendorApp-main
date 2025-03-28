@@ -46,6 +46,10 @@ class AddProductController extends ChangeNotifier {
   final TextEditingController volumeController = TextEditingController();
   final TextEditingController lengthController = TextEditingController();
   final TextEditingController pieceController = TextEditingController();
+  final TextEditingController cmController = TextEditingController();
+  final TextEditingController meterController = TextEditingController();
+  final TextEditingController literController = TextEditingController();
+  final TextEditingController unitQuantityController = TextEditingController();
 
   String? _selectedUnitType;
   String? get selectedUnitType => _selectedUnitType;
@@ -200,8 +204,6 @@ class AddProductController extends ChangeNotifier {
       _shippingCapacityController;
   TextEditingController get minDeliveryLimitController =>
       _minDeliveryLimitController;
-
-  final TextEditingController unitQuantityController = TextEditingController();
 
   void setUnitQuantity(String value) {
     if (value.isNotEmpty) {
@@ -1109,13 +1111,15 @@ class AddProductController extends ChangeNotifier {
         'tags': jsonEncode([]),
         'is_organic': _isOrganic,
         'is_frezed': _shippingType == 'refrigerated',
-        'size': jsonEncode([]),
+        'size': jsonEncode(_buildSizeData()),
         'charge_capacity': _shippingCapacity
       };
 
       log("=== Request Fields ===");
       log("Shipping Capacity: $_shippingCapacity");
       log("Minimum Delivery Limit: $_minimumDeliveryLimit");
+      log("Unit Value: $_unitValue");
+      log("Unit Quantity: $_unitQuantity");
       log(jsonEncode(fields));
 
       // Make API call
@@ -1774,6 +1778,61 @@ class AddProductController extends ChangeNotifier {
     lengthController.clear();
     pieceController.clear();
     notifyListeners();
+  }
+
+  List<Map<String, dynamic>> _buildSizeData() {
+    if (_unitValue == null || _unitValue!.isEmpty) {
+      return [];
+    }
+
+    // Get the unit quantity based on unit type
+    double? quantity;
+
+    // First try the unitQuantityController
+    if (unitQuantityController.text.isNotEmpty) {
+      quantity = double.tryParse(unitQuantityController.text);
+    } else {
+      // Try specific controllers based on unit type
+      switch (_unitValue) {
+        case 'كيلو':
+        case 'kg':
+          quantity = weightController.text.isNotEmpty
+              ? double.tryParse(weightController.text)
+              : null;
+          break;
+        case 'لتر':
+        case 'liter':
+          quantity = volumeController.text.isNotEmpty
+              ? double.tryParse(volumeController.text)
+              : null;
+          break;
+        case 'متر':
+        case 'meter':
+        case 'طول':
+        case 'length':
+          quantity = lengthController.text.isNotEmpty
+              ? double.tryParse(lengthController.text)
+              : null;
+          break;
+        case 'قطعة':
+        case 'piece':
+          quantity = pieceController.text.isNotEmpty
+              ? double.tryParse(pieceController.text)
+              : null;
+          break;
+      }
+    }
+
+    if (quantity == null) {
+      return [
+        {'unit': _unitValue}
+      ];
+    }
+    log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+    log("${{'unit': _unitValue, 'quantity': quantity}}");
+    return [
+      {'unit': _unitValue, 'quantity': quantity}
+    ];
   }
 
   @override

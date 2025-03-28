@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:provider/provider.dart';
+import 'package:mazzraati_vendor_app/common/basewidgets/see_more_button_widget.dart';
+import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
 import 'package:mazzraati_vendor_app/features/product/domain/models/product_model.dart';
 import 'package:mazzraati_vendor_app/features/product_details/controllers/productDetailsController.dart';
+import 'package:mazzraati_vendor_app/features/shop/widgets/shop_product_card_widget.dart';
 import 'package:mazzraati_vendor_app/helper/price_converter.dart';
-import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/localization/controllers/localization_controller.dart';
-import 'package:mazzraati_vendor_app/features/addProduct/controllers/add_product_controller.dart';
+import 'package:mazzraati_vendor_app/localization/language_constrants.dart';
 import 'package:mazzraati_vendor_app/theme/controllers/theme_controller.dart';
 import 'package:mazzraati_vendor_app/utill/dimensions.dart';
 import 'package:mazzraati_vendor_app/utill/styles.dart';
-import 'package:mazzraati_vendor_app/common/basewidgets/see_more_button_widget.dart';
-import 'package:mazzraati_vendor_app/features/shop/widgets/shop_product_card_widget.dart';
+import 'package:provider/provider.dart';
 
 class ProductDetailsWidget extends StatefulWidget {
   final Product? productModel;
@@ -97,10 +97,20 @@ class _ProductDetailsWidgetState extends State<ProductDetailsWidget> {
 
       return RefreshIndicator(
         onRefresh: () async {
-          Provider.of<ProductDetailsController>(context, listen: false)
-              .getProductDetails(widget.productModel!.id);
-          Provider.of<AddProductController>(context, listen: false)
-              .getCategoryList(context, null, 'en');
+          // Wait for the current frame to complete before making provider calls
+          await Future.delayed(Duration.zero);
+
+          // Use addPostFrameCallback to ensure these calls happen after the build is complete
+          if (context.mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Provider.of<ProductDetailsController>(context, listen: false)
+                  .getProductDetails(widget.productModel!.id);
+              Provider.of<AddProductController>(context, listen: false)
+                  .getCategoryList(context, null, 'en');
+            });
+          }
+
+          return Future.value();
         },
         child: NotificationListener<ScrollNotification>(
           onNotification: (scrollNotification) {

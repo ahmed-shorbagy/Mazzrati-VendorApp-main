@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:mazzraati_vendor_app/features/splash/controllers/splash_controller.dart';
+import 'package:provider/provider.dart';
 
 class PriceConverter {
   static String convertPrice(BuildContext context, double? price,
@@ -66,14 +66,28 @@ class PriceConverter {
     }
   }
 
+  // ... existing code ...
   static double convertAmount(double amount, BuildContext context) {
     final splashProvider =
         Provider.of<SplashController>(context, listen: false);
+
+    // Check if all required values are available
+    if (splashProvider.myCurrency == null ||
+        splashProvider.myCurrency!.exchangeRate == null ||
+        splashProvider.usdCurrency == null ||
+        splashProvider.usdCurrency!.exchangeRate == null ||
+        splashProvider.configModel == null ||
+        splashProvider.configModel!.decimalPointSettings == null) {
+      // Return the original amount if any required value is missing
+      return amount;
+    }
+
     return double.parse((amount *
             splashProvider.myCurrency!.exchangeRate! *
             (1 / splashProvider.usdCurrency!.exchangeRate!))
         .toStringAsFixed(splashProvider.configModel!.decimalPointSettings!));
   }
+// ... existing code ...
 
   static String percentageCalculation(BuildContext context, double? price,
       double? discount, String? discountType) {
