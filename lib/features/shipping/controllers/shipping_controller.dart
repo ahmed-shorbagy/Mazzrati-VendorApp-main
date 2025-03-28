@@ -357,8 +357,8 @@ class ShippingController extends ChangeNotifier {
   bool _isLoadingShippingPrices = false;
   bool get isLoadingShippingPrices => _isLoadingShippingPrices;
 
-  Map<String, dynamic>? _shippingPricesResponse;
-  Map<String, dynamic>? get shippingPricesResponse => _shippingPricesResponse;
+  dynamic _shippingPricesResponse;
+  dynamic get shippingPricesResponse => _shippingPricesResponse;
 
   Future<void> getShippingPrices() async {
     _isLoadingShippingPrices = true;
@@ -374,11 +374,29 @@ class ShippingController extends ChangeNotifier {
         _shippingPricesResponse = apiResponse.response!.data;
         _shippingRanges = []; // Clear existing ranges
 
-        // Parse shipping ranges from API response
-        if (_shippingPricesResponse != null &&
-            _shippingPricesResponse!.containsKey('shipping_ranges')) {
+        // Check if response is a List (direct shipping ranges)
+        if (_shippingPricesResponse is List) {
+          final shippingRangesData = _shippingPricesResponse as List;
+
+          for (var rangeData in shippingRangesData) {
+            if (rangeData is Map) {
+              final startKm = rangeData['distance_from'] as int? ?? 0;
+              final endKm = rangeData['distance_to'] as int? ?? -1;
+              final price = rangeData['shipping_price']?.toString() ?? '0.0';
+
+              _shippingRanges.add(ShippingRange(
+                startKm: startKm,
+                endKm: endKm,
+                priceController: TextEditingController(text: price),
+              ));
+            }
+          }
+        }
+        // Backward compatibility - check if it's a Map with shipping_ranges key
+        else if (_shippingPricesResponse is Map &&
+            (_shippingPricesResponse as Map).containsKey('shipping_ranges')) {
           final shippingRangesData =
-              _shippingPricesResponse!['shipping_ranges'] as List?;
+              (_shippingPricesResponse as Map)['shipping_ranges'] as List?;
 
           if (shippingRangesData != null) {
             for (var rangeData in shippingRangesData) {
